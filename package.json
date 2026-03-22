@@ -1,0 +1,67 @@
+{
+  "name": "authtemplate",
+  "version": "1.0.0",
+  "description": "Secure authentication boilerplate using TypeScript, Express, PostgreSQL, Prisma, and Redis with JWT, refresh tokens, and rate limiting. All code is hand-written, and contains zero AI-generated code.",
+  "keywords": [
+    "express",
+    "nodejs",
+    "typescript",
+    "authentication",
+    "auth-template",
+    "jwt",
+    "refresh-token",
+    "access-token",
+    "secure-auth",
+    "postgresql",
+    "prisma",
+    "redis",
+    "rate-limiting",
+    "api-security",
+    "session-management",
+    "http-only-cookies",
+    "zod",
+    "validation",
+    "backend-template",
+    "boilerplate"
+  ],
+  "homepage": "https://github.com/M-Uzair-dev/Authetication-Template#readme",
+  "bugs": {
+    "url": "https://github.com/M-Uzair-dev/Authetication-Template/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/M-Uzair-dev/Authetication-Template.git"
+  },
+  "license": "ISC",
+  "author": "Uzair Manan",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'tsc && node dist/index.js'",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.10.1",
+    "jsonwebtoken": "^9.0.3",
+    "prisma": "^7.5.0",
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/helmet": "^0.0.48",
+    "@types/ioredis": "^4.28.10",
+    "@types/jsonwebtoken": "^9.0.10",
+    "nodemon": "^3.1.14",
+    "tsc-node": "^0.0.3"
+  }
+}
