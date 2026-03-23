@@ -15,11 +15,11 @@ type payloadType = {
   email: string;
 };
 
+// now we include tokenId in refresh token payload to allow direct lookup
 type refreshTokenJWTPayload = payloadType & {
   tokenId: string;
 };
 
-// now we include tokenId in refresh token payload to allow direct lookup
 const generateTokens = async (
   payload: payloadType,
   device: string,
@@ -56,7 +56,7 @@ const generateTokens = async (
   // then hash that token
   const tokenHash = await bcrypt.hash(refreshToken, 10);
 
-  // then use that same id to create a DB record and put the token has inside
+  // then use that same id to create a DB record and put the token hash inside
   await prisma.token.create({
     data: {
       id: refreshTokenId,
@@ -82,7 +82,7 @@ const verifyUser = async (
     // at first, we check the access token
     const data = jwt.verify(accessToken, JWT_SECRET!) as payloadType;
 
-    // if access token was invalid, jwt wouldve thrown an error and sent us to the catch block
+    // if access token was invalid, jwt would've thrown an error and sent us to the catch block
     // coming here means the access token is valid, so we send back the id
 
     return data.id;
@@ -148,7 +148,7 @@ const getRefreshToken = async (
   strict: boolean = false,
 ): Promise<Token> => {
   try {
-    // lets make sure to token given to us is valid jwt
+    // lets make sure the given token is valid
     const decoded = jwt.verify(
       refreshToken,
       JWT_SECRET!,
@@ -167,10 +167,10 @@ const getRefreshToken = async (
     // Lets see if no token was found in the db
 
     if (!validTokenRecord) {
-      // coming here means the token was a valid JWT token but was no found in the DB
+      // coming here means that even though token was valid, it was not found in the DB
 
       if (strict) {
-        // strict means this is a strict check. in that case, if we are given a deleted refresh token
+        // If this is a strict check, and we are given a deleted refresh token
         // that is a big problem and means data was breached, in that case, we revoke all user sessions
         await prisma.token.deleteMany({
           where: {
@@ -184,11 +184,12 @@ const getRefreshToken = async (
         errorType.REFRESH_TOKEN_EXPIRED,
       );
     }
+    // if the token is expired or of the wrong type we enter this condition
     if (
       validTokenRecord.expiresAt < new Date() ||
       validTokenRecord.type !== "REFRESH_TOKEN"
     ) {
-      // delete the expired token
+      // if any of the above condition is true, we enter here and delete the token
       await prisma.token.delete({ where: { id: validTokenRecord.id } });
 
       // throw a refresh token error
@@ -199,11 +200,14 @@ const getRefreshToken = async (
       );
     }
 
-    // so the token exists, lets see if it contains the correct hashed token
+    // so the token exists, and is not expired.
+    // lets see if it contains the correct hashed token
     const isTokenValid = await bcrypt.compare(
       refreshToken,
       validTokenRecord.tokenHash,
     );
+
+    // if it doesnt contain the correct hashed jwt token, it's invalid token
     if (!isTokenValid)
       throw new appError(
         401,
