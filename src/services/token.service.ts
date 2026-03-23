@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { appError } from "../errors/errors.js";
 import { errorType } from "../errors/errors.js";
 import { v4 as uuid } from "uuid";
+import type { Token } from "@prisma/client";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -90,55 +91,10 @@ const verifyUser = async (
       // we are in the catch block, which means the access token is not valid
       // so now we need to throw an error, lets verify the refresh token to see if it's valid
 
-      const decoded = jwt.verify(
-        refreshToken,
-        JWT_SECRET!,
-      ) as refreshTokenJWTPayload;
+      await getRefreshToken(refreshToken);
 
-      // coming here means that refresh token was valid, otherwise jwt would've sent us in catch block
-      // now that jwt refresh token is valid, lets see if it exists in our DB and if its expired
+      // if getRefreshToken didn't threw an error, then it means the refresh token was valid. in that case, we throw an access token error
 
-      // finding the token using token id inside the refresh token payload, this way we can directly look it up without having to hash and compare
-      const validTokenRecord = await prisma.token.findUnique({
-        where: {
-          id: decoded.tokenId,
-        },
-      });
-
-      // Lets see if no token was found or the found token is expired
-
-      if (
-        !validTokenRecord ||
-        validTokenRecord.expiresAt < new Date() ||
-        validTokenRecord.type !== "REFRESH_TOKEN"
-      ) {
-        if (validTokenRecord) {
-          // if we have an expired token, then delete it
-          await prisma.token.delete({ where: { id: validTokenRecord.id } });
-        }
-
-        // throw a refresh token error
-        throw new appError(
-          401,
-          "Session revoked or expired. Please login again.",
-          errorType.REFRESH_TOKEN_EXPIRED,
-        );
-      }
-
-      // so the token exists, lets see if it contains the correct hashed token
-      const isTokenValid = await bcrypt.compare(
-        refreshToken,
-        validTokenRecord.tokenHash,
-      );
-      if (!isTokenValid)
-        throw new appError(
-          401,
-          "Session revoked or expired. Please login again.",
-          errorType.REFRESH_TOKEN_EXPIRED,
-        );
-
-      // coming here means we have found a valid refresh token, in that case the access token is the issue and refresh token is fine
-      // so we throw a accessToken error
       throw new appError(
         401,
         "Access token expired. Use refresh token to continue.",
@@ -159,7 +115,149 @@ const verifyUser = async (
   }
 };
 
+const generateAccessToken = async (refreshToken: string, device: string) => {
+  // lets see if the given refresh token is valid JWT
+  const record = await getRefreshToken(refreshToken, true);
+
+  // this will either throw an error, or return a refreshToken record
+  // coming here means we got the record, in that case we delete this record first
+  await prisma.token.delete({
+    where: {
+      id: record.id,
+    },
+  });
+
+  // lets get old token's payload (id and email)
+  const payload = jwt.verify(
+    refreshToken,
+    JWT_SECRET,
+  ) as refreshTokenJWTPayload;
+  // now that the previous record has been deleted, we generate new tokens
+  const tokens = await generateTokens(
+    {
+      id: payload.id,
+      email: payload.email,
+    },
+    device,
+  );
+  return tokens;
+};
+
+const getRefreshToken = async (
+  refreshToken: string,
+  strict: boolean = false,
+): Promise<Token> => {
+  try {
+    // lets make sure to token given to us is valid jwt
+    const decoded = jwt.verify(
+      refreshToken,
+      JWT_SECRET!,
+    ) as refreshTokenJWTPayload;
+
+    // coming here means that refresh token was valid, otherwise jwt would've sent us in catch block
+    // now that jwt refresh token is valid, lets see if it exists in our DB and if its expired
+
+    // finding the token using token id inside the refresh token payload, this way we can directly look it up without having to hash and compare
+    const validTokenRecord = await prisma.token.findUnique({
+      where: {
+        id: decoded.tokenId,
+      },
+    });
+
+    // Lets see if no token was found in the db
+
+    if (!validTokenRecord) {
+      // coming here means the token was a valid JWT token but was no found in the DB
+
+      if (strict) {
+        // strict means this is a strict check. in that case, if we are given a deleted refresh token
+        // that is a big problem and means data was breached, in that case, we revoke all user sessions
+        await prisma.token.deleteMany({
+          where: {
+            userId: decoded.id,
+          },
+        });
+      }
+      throw new appError(
+        401,
+        "Session revoked or expired. Please login again.",
+        errorType.REFRESH_TOKEN_EXPIRED,
+      );
+    }
+    if (
+      validTokenRecord.expiresAt < new Date() ||
+      validTokenRecord.type !== "REFRESH_TOKEN"
+    ) {
+      // delete the expired token
+      await prisma.token.delete({ where: { id: validTokenRecord.id } });
+
+      // throw a refresh token error
+      throw new appError(
+        401,
+        "Session revoked or expired. Please login again.",
+        errorType.REFRESH_TOKEN_EXPIRED,
+      );
+    }
+
+    // so the token exists, lets see if it contains the correct hashed token
+    const isTokenValid = await bcrypt.compare(
+      refreshToken,
+      validTokenRecord.tokenHash,
+    );
+    if (!isTokenValid)
+      throw new appError(
+        401,
+        "Session revoked or expired. Please login again.",
+        errorType.REFRESH_TOKEN_EXPIRED,
+      );
+
+    // coming here means we have found a valid refresh token, so we return true
+    return validTokenRecord;
+  } catch (e) {
+    if (e instanceof appError) throw e;
+    throw new appError(
+      401,
+      "Session revoked or expired. Please login again.",
+      errorType.REFRESH_TOKEN_EXPIRED,
+    );
+  }
+};
+const logout = async (refreshToken: string): Promise<void> => {
+  try {
+    // first lets find the token in DB
+    const record = await getRefreshToken(refreshToken);
+
+    // this will either throw an error, or return a refreshToken record
+    // coming here means we got the record, in that case we delete this record
+    await prisma.token.delete({
+      where: {
+        id: record.id,
+      },
+    });
+  } catch (error) {
+    // If the token is invalid or already deleted, we consider the logout successful
+    // and suppress the error.
+  }
+};
+
+const logoutAll = async (userId: string): Promise<number> => {
+  try {
+    const result = await prisma.token.deleteMany({
+      where: {
+        userId,
+        type: "REFRESH_TOKEN",
+      },
+    });
+
+    return result.count;
+  } catch (e) {
+    throw new appError(500, "Something went wrong!");
+  }
+};
 export default {
   generateTokens,
+  generateAccessToken,
   verifyUser,
+  logout,
+  logoutAll,
 };
