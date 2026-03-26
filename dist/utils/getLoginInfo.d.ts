@@ -7,4 +7,5 @@ export type LoginMeta = {
     time: string;
 };
 export declare const getLoginMeta: (req: Request) => Promise<LoginMeta>;
+export declare const getDevice: (req: Request) => string;
 //# sourceMappingURL=getLoginInfo.d.ts.map

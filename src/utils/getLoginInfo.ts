@@ -59,7 +59,13 @@ export const getLoginMeta = async (req: Request): Promise<LoginMeta> => {
     hour: "numeric",
     minute: "2-digit",
   });
-
+  console.log({
+    ip,
+    location,
+    browser,
+    device,
+    time,
+  });
   return {
     ip,
     location,
@@ -67,4 +73,18 @@ export const getLoginMeta = async (req: Request): Promise<LoginMeta> => {
     device,
     time,
   };
+};
+
+export const getDevice = (req: Request): string => {
+  const ua = req.headers["user-agent"] || "";
+  const parser = new UAParser(ua);
+
+  const osData = parser.getOS();
+  const deviceData = parser.getDevice();
+
+  const device = deviceData.model
+    ? `${deviceData.model}`
+    : `${osData.name || "Unknown OS"} (${deviceData.type || "desktop"})`;
+  console.log("Device Name: ");
+  return device;
 };

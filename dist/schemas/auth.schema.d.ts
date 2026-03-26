@@ -19,6 +19,13 @@ declare const _default: {
         token: z.ZodString;
         newPassword: z.ZodString;
     }, z.core.$strip>;
+    resendVerificationTokenSchema: z.ZodObject<{
+        email: z.ZodPipe<z.ZodEmail, z.ZodTransform<string, string>>;
+        device: z.ZodUUID;
+    }, z.core.$strip>;
+    verifyEmailSchema: z.ZodObject<{
+        token: z.ZodString;
+    }, z.core.$strip>;
 };
 export default _default;
 //# sourceMappingURL=auth.schema.d.ts.map

@@ -5,7 +5,7 @@ type payloadType = {
 };
 type DBClient = PrismaClient | Prisma.TransactionClient;
 declare const _default: {
-    generateTokens: (payload: payloadType, device: string, db?: DBClient) => Promise<{
+    generateTokens: (payload: payloadType, device: string, deviceName?: string, db?: DBClient) => Promise<{
         refreshToken: string;
         accessToken: string;
     }>;

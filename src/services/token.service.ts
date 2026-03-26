@@ -75,6 +75,7 @@ const validateDevice = (device: string): void => {
 const generateTokens = async (
   payload: payloadType,
   device: string,
+  deviceName: string = "unknown",
   db: DBClient = prisma,
 ): Promise<{
   refreshToken: string;
@@ -129,6 +130,7 @@ const generateTokens = async (
       // If a record exists for this device, we overwrite it with the new token data
       id: refreshTokenId,
       tokenHash,
+      deviceName,
       expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
     },
     create: {
@@ -137,6 +139,7 @@ const generateTokens = async (
       type: "REFRESH_TOKEN",
       expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
       device: device,
+      deviceName,
       userId: payload.id,
       tokenHash,
     },

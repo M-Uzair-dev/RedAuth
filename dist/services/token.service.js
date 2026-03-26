@@ -42,7 +42,7 @@ const validateDevice = (device) => {
         throw new appError(400, "Device identifier is too long (max 255 characters)", errorType.BAD_REQUEST);
     }
 };
-const generateTokens = async (payload, device, db = prisma) => {
+const generateTokens = async (payload, device, deviceName = "unknown", db = prisma) => {
     // Validate device parameter before proceeding
     validateDevice(device);
     const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, {
@@ -85,6 +85,7 @@ const generateTokens = async (payload, device, db = prisma) => {
             // If a record exists for this device, we overwrite it with the new token data
             id: refreshTokenId,
             tokenHash,
+            deviceName,
             expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
         },
         create: {
@@ -93,6 +94,7 @@ const generateTokens = async (payload, device, db = prisma) => {
             type: "REFRESH_TOKEN",
             expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY),
             device: device,
+            deviceName,
             userId: payload.id,
             tokenHash,
         },

@@ -4,6 +4,7 @@ declare const _default: {
     forgotPasswprd: (req: Request, res: Response) => Promise<void>;
     resetPassword: (req: Request, res: Response) => Promise<void>;
     signup: (req: Request, res: Response) => Promise<void>;
+    verifyEmail: (req: Request, res: Response) => Promise<void>;
 };
 export default _default;
 //# sourceMappingURL=auth.controller.d.ts.map

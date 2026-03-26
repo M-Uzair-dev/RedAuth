@@ -39,11 +39,11 @@ const login = async (req, res) => {
 const signup = async (req, res) => {
     try {
         const { name, email, password, device } = authSchema.signupSchema.parse(req.body);
-        const response = await authService.Signup(name, email, password, device);
+        const response = await authService.Signup(name, email, password, device, req);
         setCookies(res, response.tokens);
         res.status(201).json({
             success: true,
-            message: "Login successful",
+            message: "Signup successful",
             data: {
                 user: response.user,
             },
@@ -79,10 +79,24 @@ const resetPassword = async (req, res) => {
         handleError(e, res);
     }
 };
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = authSchema.verifyEmailSchema.parse(req.body);
+        await authService.verifyEmail(token);
+        res.status(200).json({
+            success: true,
+            message: "Email verification successful",
+        });
+    }
+    catch (e) {
+        handleError(e, res);
+    }
+};
 export default {
     login,
     forgotPasswprd,
     resetPassword,
     signup,
+    verifyEmail,
 };
 //# sourceMappingURL=auth.controller.js.map

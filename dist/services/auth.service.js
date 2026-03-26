@@ -3,14 +3,15 @@ import { appError } from "../errors/errors.js";
 import tokenService from "./token.service.js";
 import emailService from "./email.service.js";
 import bcrypt from "bcrypt";
-import { getLoginMeta } from "../utils/getLoginInfo.js";
+import { getLoginMeta, getDevice } from "../utils/getLoginInfo.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 const frontend = process.env.FRONTEND_URL;
 const RESET_TOKEN_SECRET = process.env.RESET_TOKEN_SECRET;
-if (!frontend || !RESET_TOKEN_SECRET)
+const VERIFICATION_TOKEN_SECRET = process.env.VERIFICATION_TOKEN_SECRET;
+if (!frontend || !RESET_TOKEN_SECRET || !VERIFICATION_TOKEN_SECRET)
     throw new Error("Some env vars were not found in env");
-const Signup = async (name, email, userPassword, device) => {
+const Signup = async (name, email, userPassword, device, req) => {
     const existingUser = await prisma.user.findUnique({
         where: {
             email,
@@ -27,10 +28,11 @@ const Signup = async (name, email, userPassword, device) => {
                 password: hashedPassword,
             },
         });
+        const deviceName = getDevice(req);
         const tokens = await tokenService.generateTokens({
             id: newUser.id,
             email,
-        }, device, tx);
+        }, device, deviceName, tx);
         return { user: newUser, tokens };
     });
     // generate and send token via email
@@ -47,15 +49,20 @@ const Login = async (email, userPassword, device, req) => {
     const isMatch = await bcrypt.compare(userPassword, user?.password || dummyHash);
     if (!user || !isMatch)
         throw new appError(404, "Invalid Credentials");
+    const loginData = await getLoginMeta(req);
     const tokens = await tokenService.generateTokens({
         id: user.id,
         email,
-    }, device);
+    }, device, loginData.device);
     try {
         // TODO: create a worker queue to handle these operations ratehr than slowing down the request
         // But for now, lets keep it this way
-        const loginData = await getLoginMeta(req);
-        await emailService.sendLoginAlertEmail(user.email, `${frontend}/secure-account`, loginData);
+        // i commented out this email sending function for development, but this is tested and functional
+        // await emailService.sendLoginAlertEmail(
+        //   user.email,
+        //   `${frontend}/secure-account`,
+        //   loginData,
+        // );
     }
     catch (error) {
         console.error("Failed to send login alert:", error);
@@ -66,28 +73,6 @@ const Login = async (email, userPassword, device, req) => {
         tokens,
     };
 };
-//   device: string,
-// ): Promise<boolean> => {
-//   const user = await prisma.user.findUnique({
-//     where: { email },
-//   });
-//   if (!user)
-//     throw new appError(
-//       200,
-//       "Check your inbox. If an account is associated with that email, we've sent you a link to continue.",
-//     );
-//   await prisma.$transaction(async (tx) => {
-//     const token = await tokenService.generateForgotPasswordToken(
-//       user.id,
-//       device,
-//     );
-//     await emailService.sendResetPasswordEmail(
-//       user.email,
-//       `${frontend}/resetPassword?t=${token}`,
-//     );
-//   });
-//   return true;
-// };
 const forgotPassword = async (email, device) => {
     const user = await prisma.user.findUnique({
         where: { email },
@@ -162,10 +147,94 @@ const resetPassword = async (newPassword, token) => {
     });
     return true;
 };
+const verifyEmail = async (token) => {
+    let decoded;
+    try {
+        decoded = jwt.verify(token, VERIFICATION_TOKEN_SECRET);
+    }
+    catch (e) {
+        throw new appError(400, "Invalid Verification Token");
+    }
+    const tokenRecord = await prisma.token.findUnique({
+        where: {
+            id: decoded.tokenId,
+        },
+    });
+    if (!tokenRecord)
+        throw new appError(400, "Invalid Verification Token");
+    if (tokenRecord.expiresAt < new Date())
+        throw new appError(400, "Verification Token Expired. Please request a new one.");
+    await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+            where: {
+                id: tokenRecord.userId,
+            },
+            data: {
+                emailVerified: true,
+            },
+        });
+        await tx.token.delete({
+            where: {
+                id: tokenRecord.id,
+            },
+        });
+    });
+    return true;
+};
+const resendVerificationToken = async (email, device) => {
+    const user = await prisma.user.findUnique({
+        where: { email },
+        include: {
+            tokens: {
+                where: { type: "EMAIL_VERIFICATION" },
+                orderBy: { createdAt: "desc" },
+                take: 1,
+            },
+        },
+    });
+    if (!user) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return true;
+    }
+    if (user.emailVerified) {
+        return true;
+    }
+    const lastToken = user.tokens[0];
+    const COOLDOWN_MS = 60000 * 5; // 5 minutes
+    if (lastToken) {
+        const timeElapsed = Date.now() - lastToken.createdAt.getTime();
+        if (timeElapsed < COOLDOWN_MS) {
+            const minutesLeft = Math.ceil((COOLDOWN_MS - timeElapsed) / (1000 * 60));
+            throw new appError(429, `Please wait ${minutesLeft} minutes before requesting another email.`);
+        }
+    }
+    const token = await prisma.$transaction(async (tx) => {
+        await tx.token.deleteMany({
+            where: {
+                userId: user.id,
+                type: "EMAIL_VERIFICATION",
+            },
+        });
+        return await tokenService.generateVerificationToken(user.id, device, tx);
+    });
+    try {
+        await emailService.sendVerificationEmail(user.email, `${frontend}/verifyEmail?t=${token}`);
+    }
+    catch (error) {
+        console.error("Email failed to send:", error);
+        await prisma.token.deleteMany({
+            where: { userId: user.id, type: "EMAIL_VERIFICATION" },
+        });
+        throw new appError(500, "We couldn't send the email. Please try again in a moment.");
+    }
+    return true;
+};
 export default {
     Signup,
     Login,
     forgotPassword,
     resetPassword,
+    verifyEmail,
+    resendVerificationToken,
 };
 //# sourceMappingURL=auth.service.js.map
