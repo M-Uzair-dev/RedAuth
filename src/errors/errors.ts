@@ -4,6 +4,7 @@ export enum errorType {
   INVALID_CREDENTIALS,
   USER_NOT_FOUND,
   BAD_REQUEST,
+  UNAUTHORIZED,
 }
 
 export class appError extends Error {

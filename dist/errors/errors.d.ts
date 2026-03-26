@@ -3,7 +3,8 @@ export declare enum errorType {
     REFRESH_TOKEN_EXPIRED = 1,
     INVALID_CREDENTIALS = 2,
     USER_NOT_FOUND = 3,
-    BAD_REQUEST = 4
+    BAD_REQUEST = 4,
+    UNAUTHORIZED = 5
 }
 export declare class appError extends Error {
     statusCode: number;

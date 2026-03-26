@@ -4,7 +4,7 @@ import { appError } from "../errors/errors.js";
 import tokenService from "./token.service.js";
 import emailService from "./email.service.js";
 import bcrypt from "bcrypt";
-import { getLoginMeta, getDevice } from "../utils/getLoginInfo.js";
+import { getLoginMeta, getDevice } from "../utils/getRequestInfo.js";
 import type { Request } from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";

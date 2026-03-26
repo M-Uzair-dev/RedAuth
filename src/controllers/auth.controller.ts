@@ -102,7 +102,22 @@ const verifyEmail = async (req: Request, res: Response) => {
     await authService.verifyEmail(token);
     res.status(200).json({
       success: true,
-      message: "Email verification successful",
+      message: "Email verification successful!",
+    });
+  } catch (e: any) {
+    handleError(e, res);
+  }
+};
+
+const resendVerificationEmail = async (req: Request, res: Response) => {
+  try {
+    const { email, device } = authSchema.resendVerificationTokenSchema.parse(
+      req.body,
+    );
+    await authService.resendVerificationToken(email, device);
+    res.status(200).json({
+      success: true,
+      message: "Verification email sent successfully!",
     });
   } catch (e: any) {
     handleError(e, res);
@@ -114,4 +129,5 @@ export default {
   resetPassword,
   signup,
   verifyEmail,
+  resendVerificationEmail,
 };

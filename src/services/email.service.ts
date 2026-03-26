@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
-import type { LoginMeta } from "../utils/getLoginInfo.js";
+import type { LoginMeta } from "../utils/getRequestInfo.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 const __dirname = dirname(fileURLToPath(import.meta.url));

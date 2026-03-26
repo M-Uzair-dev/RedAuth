@@ -116,6 +116,8 @@ const verifyUser = async (accessToken, refreshToken) => {
         try {
             // we are in the catch block, which means the access token is not valid
             // so now we need to throw an error, lets verify the refresh token to see if it's valid
+            if (!refreshToken)
+                throw new appError(401, "Session revoked or expired. Please login again.", errorType.REFRESH_TOKEN_EXPIRED);
             await getRefreshToken(refreshToken);
             // if getRefreshToken didn't threw an error, then it means the refresh token was valid. in that case, we throw an access token error
             throw new appError(401, "Access token expired. Use refresh token to continue.", errorType.ACCESS_TOKEN_EXPIRED);

@@ -5,6 +5,7 @@ export var errorType;
     errorType[errorType["INVALID_CREDENTIALS"] = 2] = "INVALID_CREDENTIALS";
     errorType[errorType["USER_NOT_FOUND"] = 3] = "USER_NOT_FOUND";
     errorType[errorType["BAD_REQUEST"] = 4] = "BAD_REQUEST";
+    errorType[errorType["UNAUTHORIZED"] = 5] = "UNAUTHORIZED";
 })(errorType || (errorType = {}));
 export class appError extends Error {
     statusCode;

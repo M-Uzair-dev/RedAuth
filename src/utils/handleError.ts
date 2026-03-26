@@ -13,7 +13,7 @@ let handleError = (e: Error | ZodError, res: Response) => {
     });
   }
 
-  // if its a zod error, we handle it according to zod's structure, using the .issues and mapping it to make it more readable.
+  // if its a zod error, we handle it according to zod's structure, using the (.issues) and mapping it to make it more readable.
   if (e instanceof ZodError) {
     return res.status(400).json({
       success: false,

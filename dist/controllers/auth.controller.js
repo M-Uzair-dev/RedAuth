@@ -85,7 +85,20 @@ const verifyEmail = async (req, res) => {
         await authService.verifyEmail(token);
         res.status(200).json({
             success: true,
-            message: "Email verification successful",
+            message: "Email verification successful!",
+        });
+    }
+    catch (e) {
+        handleError(e, res);
+    }
+};
+const resendVerificationEmail = async (req, res) => {
+    try {
+        const { email, device } = authSchema.resendVerificationTokenSchema.parse(req.body);
+        await authService.resendVerificationToken(email, device);
+        res.status(200).json({
+            success: true,
+            message: "Verification email sent successfully!",
         });
     }
     catch (e) {
@@ -98,5 +111,6 @@ export default {
     resetPassword,
     signup,
     verifyEmail,
+    resendVerificationEmail,
 };
 //# sourceMappingURL=auth.controller.js.map

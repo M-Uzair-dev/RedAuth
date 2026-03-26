@@ -13,7 +13,7 @@ declare const _default: {
         refreshToken: string;
         accessToken: string;
     }>;
-    verifyUser: (accessToken: string, refreshToken: string) => Promise<string>;
+    verifyUser: (accessToken: string, refreshToken: string | null) => Promise<string>;
     logout: (refreshToken: string) => Promise<void>;
     logoutAll: (userId: string) => Promise<number>;
     generateForgotPasswordToken: (userId: string, device: string, db?: DBClient) => Promise<string>;

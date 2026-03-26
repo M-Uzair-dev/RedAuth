@@ -1,4 +1,4 @@
-import type { LoginMeta } from "../utils/getLoginInfo.js";
+import type { LoginMeta } from "../utils/getRequestInfo.js";
 export declare const sendEmail: (to: string, subject: string, html: string) => Promise<void>;
 declare const _default: {
     sendVerificationEmail: (to: string, url: string) => Promise<void>;
