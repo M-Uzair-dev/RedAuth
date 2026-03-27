@@ -1,4 +1,4 @@
-DATABASE_URL="postgresql://postgres:password@localhost:5432/authtemplate"
+DATABASE_URL="postgresql://postgres:uzairmanandev@localhost:5433/authtemplate"
 
 # Access Token Configuration
 # 15 minutes in milliseconds (1000 * 60 * 15)
@@ -23,10 +23,11 @@ VERIFICATION_TOKEN_SECRET=YourVerificationTokenSecretHere
 # nodemailer credentials
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USER=your-email@gmail.com
-MAIL_PASS=your-app-password
+MAIL_USER=yourmail@gmail.com
+MAIL_PASS=your email app password
 
+# Redis environmenr variables
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
 # general variables
-
 FRONTEND_URL=http://localhost:3000
-

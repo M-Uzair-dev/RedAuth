@@ -1,5 +1,7 @@
 import Express from "express";
 import authController from "../controllers/auth.controller.js";
+import userController from "../controllers/user.controller.js";
+import { email } from "zod";
 
 const router = Express.Router();
 

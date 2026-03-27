@@ -6,6 +6,7 @@ import { errorType } from "../errors/errors.js";
 import { v4 as uuid } from "uuid";
 import type { Token } from "@prisma/client";
 import type { PrismaClient, Prisma } from "@prisma/client";
+import type { EmailData } from "../queues/email.queue.js";
 
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const REFRESH_TOKEN_EXPIRY = parseInt(process.env.REFRESH_TOKEN_EXPIRY || "");
@@ -360,7 +361,11 @@ const generateForgotPasswordToken = async (
   userId: string,
   device: string,
   db: DBClient = prisma,
-): Promise<string> => {
+): Promise<{
+  token: string;
+  tokenId: string;
+}> => {
+  validateDevice(device);
   const tokenId = uuid();
 
   // 1. Generate the token
@@ -372,7 +377,7 @@ const generateForgotPasswordToken = async (
   const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
   // 3. Delete old ones and Store the new record
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     await tx.token.deleteMany({
       where: {
         userId,
@@ -391,14 +396,18 @@ const generateForgotPasswordToken = async (
     });
   });
 
-  return token;
+  return { token, tokenId };
 };
 
 const generateVerificationToken = async (
   userId: string,
   device: string,
   db: DBClient = prisma,
-): Promise<string> => {
+): Promise<{
+  token: string;
+  tokenId: string;
+}> => {
+  validateDevice(device);
   const tokenId = uuid();
 
   // 1. Generate the token
@@ -410,7 +419,7 @@ const generateVerificationToken = async (
   const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
   // 3. Delete old ones and Store the new record
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     await tx.token.deleteMany({
       where: {
         userId,
@@ -429,7 +438,7 @@ const generateVerificationToken = async (
     });
   });
 
-  return token;
+  return { token, tokenId };
 };
 
 export default {

@@ -5,6 +5,7 @@ import type { LoginMeta } from "../utils/getRequestInfo.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
+import { emailQueue, type EmailData } from "../queues/email.queue.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
@@ -16,7 +17,20 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+export const addEmailJob = async (data: EmailData) => {
+  await emailQueue.add("send-email", data, {
+    attempts: 3,
+    backoff: {
+      type: "exponential",
+      delay: 5000,
+    },
+    removeOnComplete: true,
+    removeOnFail: false,
+  });
+};
+
 export const sendEmail = async (to: string, subject: string, html: string) => {
+  console.log("Sending email...");
   await transporter.sendMail({
     from: `"Your App" <${process.env.MAIL_USER}>`,
     to,
@@ -28,13 +42,19 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
 const sendVerificationEmail = async (
   to: string,
   url: string,
+  tokenId: string,
 ): Promise<void> => {
   const templatePath = path.join(__dirname, "../emails/emailVerification.html");
   let html = fs.readFileSync(templatePath, "utf-8");
 
   html = html.replace(/{{url}}/g, url);
-
-  await sendEmail(to, "Verify Your Email Address", html);
+  console.log("Adding email job to send email to : ", to);
+  await addEmailJob({
+    to,
+    subject: "Verify Your Email Address",
+    html,
+    tokenId,
+  });
 };
 
 const sendLoginAlertEmail = async (
@@ -52,12 +72,13 @@ const sendLoginAlertEmail = async (
   html = html.replace(/{{ip}}/g, loginMeta.ip);
   html = html.replace(/{{secureAccountUrl}}/g, secureAccountUrl);
 
-  await sendEmail(to, "New Login Detected", html);
+  await addEmailJob({ to, subject: "New Login Detected", html, tokenId: "" });
 };
 
 const sendResetPasswordEmail = async (
   to: string,
   url: string,
+  tokenId: string,
 ): Promise<void> => {
   const templatePath = path.join(__dirname, "../emails/passwordReset.html");
   let html = fs.readFileSync(templatePath, "utf-8");
@@ -73,10 +94,11 @@ const sendResetPasswordEmail = async (
   html = html.replace(/{{expiry}}/g, "30 Minutes");
   html = html.replace(/{{requestTime}}/g, requestTime);
 
-  await sendEmail(to, "Reset Your Password", html);
+  await addEmailJob({ to, subject: "Reset Your Password", html, tokenId });
 };
 export default {
   sendVerificationEmail,
   sendLoginAlertEmail,
   sendResetPasswordEmail,
+  sendEmail,
 };

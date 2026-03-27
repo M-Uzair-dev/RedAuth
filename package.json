@@ -39,13 +39,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && copyfiles -u 1 src/emails/*.html dist/",
-    "dev": "nodemon --watch src/**/*.ts --exec \"npx tsc && node dist/index.js\"",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\"",
     "start": "node dist/index.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.71.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
@@ -73,6 +74,7 @@
     "@types/nodemailer": "^7.0.11",
     "@types/pg": "^8.20.0",
     "@types/ua-parser-js": "^0.7.39",
+    "concurrently": "^9.2.1",
     "copyfiles": "^2.4.1",
     "nodemon": "^3.1.14",
     "tsc-node": "^0.0.3"

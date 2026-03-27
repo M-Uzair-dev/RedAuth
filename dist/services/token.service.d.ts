@@ -16,8 +16,14 @@ declare const _default: {
     verifyUser: (accessToken: string, refreshToken: string | null) => Promise<string>;
     logout: (refreshToken: string) => Promise<void>;
     logoutAll: (userId: string) => Promise<number>;
-    generateForgotPasswordToken: (userId: string, device: string, db?: DBClient) => Promise<string>;
-    generateVerificationToken: (userId: string, device: string, db?: DBClient) => Promise<string>;
+    generateForgotPasswordToken: (userId: string, device: string, db?: DBClient) => Promise<{
+        token: string;
+        tokenId: string;
+    }>;
+    generateVerificationToken: (userId: string, device: string, db?: DBClient) => Promise<{
+        token: string;
+        tokenId: string;
+    }>;
 };
 export default _default;
 //# sourceMappingURL=token.service.d.ts.map

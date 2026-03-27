@@ -1,5 +1,7 @@
 import Express from "express";
 import authController from "../controllers/auth.controller.js";
+import userController from "../controllers/user.controller.js";
+import { email } from "zod";
 const router = Express.Router();
 router.post("/login", authController.login);
 router.post("/signup", authController.signup);

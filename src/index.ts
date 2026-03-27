@@ -5,6 +5,7 @@ import userRoutes from "./routes/user.route.js";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import "./workers/email.worker.js";
 
 const app = Express();
 const PORT = process.env.PORT || 5000;

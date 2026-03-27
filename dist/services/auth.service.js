@@ -38,8 +38,17 @@ const Signup = async (name, email, userPassword, device, req) => {
     // generate and send token via email
     // TODO: Create a worker queue that will handle these requests rather than slowing down requests
     // failure of this email is not an issue, user can request a new one
-    const token = await tokenService.generateVerificationToken(response.user.id, device);
-    await emailService.sendVerificationEmail(response.user.email, `${frontend}/verifyEmail?t=${token}`);
+    const { token, tokenId } = await tokenService.generateVerificationToken(response.user.id, device);
+    try {
+        await emailService.sendVerificationEmail(response.user.email, `${frontend}/verifyEmail?t=${token}`, tokenId);
+    }
+    catch (e) {
+        await prisma.token.delete({
+            where: {
+                id: tokenId,
+            },
+        });
+    }
     const { password, ...rest } = response.user;
     return { user: rest, tokens: response.tokens };
 };
@@ -55,14 +64,7 @@ const Login = async (email, userPassword, device, req) => {
         email,
     }, device, loginData.device);
     try {
-        // TODO: create a worker queue to handle these operations ratehr than slowing down the request
-        // But for now, lets keep it this way
-        // i commented out this email sending function for development, but this is tested and functional
-        // await emailService.sendLoginAlertEmail(
-        //   user.email,
-        //   `${frontend}/secure-account`,
-        //   loginData,
-        // );
+        await emailService.sendLoginAlertEmail(user.email, `${frontend}/secure-account`, loginData);
     }
     catch (error) {
         console.error("Failed to send login alert:", error);
@@ -79,12 +81,16 @@ const forgotPassword = async (email, device) => {
     });
     if (user) {
         // User exists - generate token and send real email
-        const token = await tokenService.generateForgotPasswordToken(user.id, device);
+        const { token, tokenId } = await tokenService.generateForgotPasswordToken(user.id, device);
         try {
-            await emailService.sendResetPasswordEmail(user.email, `${frontend}/resetPassword?t=${token}`);
+            await emailService.sendResetPasswordEmail(user.email, `${frontend}/resetPassword?t=${token}`, tokenId);
         }
         catch (error) {
-            console.error("Failed to send password reset email:", error);
+            await prisma.token.delete({
+                where: {
+                    id: tokenId,
+                },
+            });
         }
     }
     else {
@@ -126,9 +132,9 @@ const resetPassword = async (newPassword, token) => {
         throw new appError(400, "Invalid Reset Token");
     // now lets update the passsword
     const hashedPassword = await bcrypt.hash(newPassword, 12);
-    const updatedUser = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
         // in a prisma transaction, we update user password and delete the tokens
-        const user = await tx.user.update({
+        await tx.user.update({
             where: {
                 id: userId,
             },
@@ -143,7 +149,6 @@ const resetPassword = async (newPassword, token) => {
                 OR: [{ id: existingToken.id }, { type: "REFRESH_TOKEN" }],
             },
         });
-        return user;
     });
     return true;
 };
@@ -162,8 +167,10 @@ const verifyEmail = async (token) => {
     });
     if (!tokenRecord)
         throw new appError(400, "Invalid Verification Token");
-    if (tokenRecord.expiresAt < new Date())
-        throw new appError(400, "Verification Token Expired. Please request a new one.");
+    const isMatch = crypto.createHash("sha256").update(token).digest("hex") ===
+        tokenRecord.tokenHash;
+    if (!isMatch || tokenRecord.expiresAt < new Date())
+        throw new appError(400, "Invalid Verification Token");
     await prisma.$transaction(async (tx) => {
         await tx.user.update({
             where: {
@@ -208,7 +215,7 @@ const resendVerificationToken = async (email, device) => {
             throw new appError(429, `Please wait ${minutesLeft} minutes before requesting another email.`);
         }
     }
-    const token = await prisma.$transaction(async (tx) => {
+    const { token, tokenId } = await prisma.$transaction(async (tx) => {
         await tx.token.deleteMany({
             where: {
                 userId: user.id,
@@ -218,7 +225,7 @@ const resendVerificationToken = async (email, device) => {
         return await tokenService.generateVerificationToken(user.id, device, tx);
     });
     try {
-        await emailService.sendVerificationEmail(user.email, `${frontend}/verifyEmail?t=${token}`);
+        await emailService.sendVerificationEmail(user.email, `${frontend}/verifyEmail?t=${token}`, tokenId);
     }
     catch (error) {
         console.error("Email failed to send:", error);

@@ -247,6 +247,7 @@ const logoutAll = async (userId) => {
     }
 };
 const generateForgotPasswordToken = async (userId, device, db = prisma) => {
+    validateDevice(device);
     const tokenId = uuid();
     // 1. Generate the token
     const token = jwt.sign({ id: userId, tokenId }, RESET_TOKEN_SECRET, {
@@ -255,7 +256,7 @@ const generateForgotPasswordToken = async (userId, device, db = prisma) => {
     // 2. Hash the token before storing
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     // 3. Delete old ones and Store the new record
-    await prisma.$transaction(async (tx) => {
+    await db.$transaction(async (tx) => {
         await tx.token.deleteMany({
             where: {
                 userId,
@@ -273,9 +274,10 @@ const generateForgotPasswordToken = async (userId, device, db = prisma) => {
             },
         });
     });
-    return token;
+    return { token, tokenId };
 };
 const generateVerificationToken = async (userId, device, db = prisma) => {
+    validateDevice(device);
     const tokenId = uuid();
     // 1. Generate the token
     const token = jwt.sign({ id: userId, tokenId }, VERIFICATION_TOKEN_SECRET, {
@@ -284,7 +286,7 @@ const generateVerificationToken = async (userId, device, db = prisma) => {
     // 2. Hash the token before storing
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
     // 3. Delete old ones and Store the new record
-    await prisma.$transaction(async (tx) => {
+    await db.$transaction(async (tx) => {
         await tx.token.deleteMany({
             where: {
                 userId,
@@ -302,7 +304,7 @@ const generateVerificationToken = async (userId, device, db = prisma) => {
             },
         });
     });
-    return token;
+    return { token, tokenId };
 };
 export default {
     generateTokens,
