@@ -29,5 +29,6 @@ MAIL_PASS=your email app password
 # Redis environmenr variables
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
+
 # general variables
 FRONTEND_URL=http://localhost:3000

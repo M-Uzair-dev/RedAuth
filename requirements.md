@@ -1,4 +1,4 @@
-# Redis scontainer
+# Redis container
 
 Since we are adding rate limiting using redis and background worker queues using BullMQ. A redis server will be required.
 

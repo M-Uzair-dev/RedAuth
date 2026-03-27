@@ -1,0 +1,244 @@
+{
+  "info": {
+    "_postman_id": "70707235-c45c-45a5-bf2b-5d153a8b8e2a",
+    "name": "New Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "{{baseUrl}}/auth/login",
+      "id": "b021a9d2-dcbd-4d6e-86c2-6286c5bfd4fb",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"uzairmanandev@gmail.com\",\r\n    \"password\": \"Uzairmanandev5762!\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "{{baseUrl}}/auth/signup",
+      "id": "50bed3d7-3856-4a75-967b-f87d2fa92a15",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Uzair Manan\",\r\n    \"email\": \"uzairmanan3@gmail.com\",\r\n    \"password\": \"Uzairmanandev123!\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/signup",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "{{baseUrl}}/auth/verifyEmail",
+      "id": "b284046c-c498-4925-849f-cf34a6394efc",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY3YzBlZTI5LTFlNzYtNGQ4Yi05NjY4LTY4ODgwYmIzOGViZSIsInRva2VuSWQiOiI2NTcyZTMxMS04ODlkLTQwMWUtYWNkMS0zNWQ0MmU1NWU5Y2UiLCJpYXQiOjE3NzQ1MzgwMDUsImV4cCI6MTc3NDcxMDgwNX0.9ZcNG5JUiL0xgtTssrftqSoPr3f2V_wjT_oBmZT2gsM\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/verifyEmail",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "verifyEmail"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "{{baseUrl}}/auth/resendVerificationEmail",
+      "id": "9044fcd2-4ebe-4cde-ac00-bbb58dc5fd9b",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"uzairmanandev@gmail.com\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/resendVerificationEmail",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "resendVerificationEmail"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "{{baseUrl}}/auth/forgotPassword",
+      "id": "89cc3c76-80ea-4e9c-bb99-4bc5798c7efd",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\":\"uzairmanandev@gmail.com\",\r\n    \"device\":\"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/forgotPassword",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "forgotPassword"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "{{baseUrl}}/auth/resetPassword",
+      "id": "15f4444b-6d76-40fc-8853-15729b27ebb6",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY3YzBlZTI5LTFlNzYtNGQ4Yi05NjY4LTY4ODgwYmIzOGViZSIsInRva2VuSWQiOiIxM2UxNzZkYS01YmNhLTRhZGYtYWU5My04ZGRkNzM3OWQzN2QiLCJpYXQiOjE3NzQ1Mzc1MDYsImV4cCI6MTc3NDUzOTMwNn0.DejWdsxxBPVgFqSYH9x3IgddKHK4QkwRgdzyXnPul-w\",\r\n    \"newPassword\": \"Uzairmanandev5762!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/resetPassword",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "resetPassword"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "{{baseUrl}}/user/me",
+      "id": "af45cd43-4be7-4f35-91cb-0ccec28e50d7",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "id": "a353a1db-2976-4ed6-ba44-a8665f27a201",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY3YzBlZTI5LTFlNzYtNGQ4Yi05NjY4LTY4ODgwYmIzOGViZSIsInRva2VuSWQiOiIxM2UxNzZkYS01YmNhLTRhZGYtYWU5My04ZGRkNzM3OWQzN2QiLCJpYXQiOjE3NzQ1Mzc1MDYsImV4cCI6MTc3NDUzOTMwNn0.DejWdsxxBPVgFqSYH9x3IgddKHK4QkwRgdzyXnPul-w\",\r\n    \"newPassword\": \"Uzairmanandev5762!\"\r\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/test",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "test"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
