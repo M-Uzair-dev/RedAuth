@@ -14,7 +14,10 @@ datasource db {
 
 model User {
   id              String   @id @default(uuid())
+
   name            String?
+  // here, you can add custom user fields like address, fatherName etc according to your need but after this, you'll need to update
+
   email           String   @unique
   password        String
   emailVerified   Boolean  @default(false)
@@ -38,7 +41,7 @@ model Token {
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([tokenHash]) // because we will be using be finding the token using its tokenHash
+  @@index([tokenHash]) // because we will be finding the token using its tokenHash
   @@unique([userId, device, type])
 }
 

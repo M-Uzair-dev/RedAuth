@@ -6,7 +6,7 @@
   },
   "item": [
     {
-      "name": "{{baseUrl}}/auth/login",
+      "name": "Login",
       "id": "b021a9d2-dcbd-4d6e-86c2-6286c5bfd4fb",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
@@ -16,7 +16,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"email\": \"uzairmanandev@gmail.com\",\r\n    \"password\": \"Uzairmanandev5762!\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "raw": "{\r\n    \"email\": \"uzairmanantesting@gmail.com\",\r\n    \"password\": \"Uzairmanandev123!\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -37,7 +37,7 @@
       "response": []
     },
     {
-      "name": "{{baseUrl}}/auth/signup",
+      "name": "Signup",
       "id": "50bed3d7-3856-4a75-967b-f87d2fa92a15",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
@@ -68,7 +68,7 @@
       "response": []
     },
     {
-      "name": "{{baseUrl}}/auth/verifyEmail",
+      "name": "Verify Email",
       "id": "b284046c-c498-4925-849f-cf34a6394efc",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
@@ -99,7 +99,7 @@
       "response": []
     },
     {
-      "name": "{{baseUrl}}/auth/resendVerificationEmail",
+      "name": "Resend Verification Email",
       "id": "9044fcd2-4ebe-4cde-ac00-bbb58dc5fd9b",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
@@ -130,7 +130,7 @@
       "response": []
     },
     {
-      "name": "{{baseUrl}}/auth/forgotPassword",
+      "name": "Forgot Password",
       "id": "89cc3c76-80ea-4e9c-bb99-4bc5798c7efd",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
@@ -161,7 +161,7 @@
       "response": []
     },
     {
-      "name": "{{baseUrl}}/auth/resetPassword",
+      "name": "Reset Password",
       "id": "15f4444b-6d76-40fc-8853-15729b27ebb6",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
@@ -192,7 +192,7 @@
       "response": []
     },
     {
-      "name": "{{baseUrl}}/user/me",
+      "name": "Get Current User",
       "id": "af45cd43-4be7-4f35-91cb-0ccec28e50d7",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
@@ -218,23 +218,51 @@
       "response": []
     },
     {
-      "name": "New Request",
+      "name": "Edit User",
       "id": "a353a1db-2976-4ed6-ba44-a8665f27a201",
       "request": {
-        "method": "POST",
+        "method": "PATCH",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY3YzBlZTI5LTFlNzYtNGQ4Yi05NjY4LTY4ODgwYmIzOGViZSIsInRva2VuSWQiOiIxM2UxNzZkYS01YmNhLTRhZGYtYWU5My04ZGRkNzM3OWQzN2QiLCJpYXQiOjE3NzQ1Mzc1MDYsImV4cCI6MTc3NDUzOTMwNn0.DejWdsxxBPVgFqSYH9x3IgddKHK4QkwRgdzyXnPul-w\",\r\n    \"newPassword\": \"Uzairmanandev5762!\"\r\n}"
+          "raw": "{\r\n    \"name\": \"New Name\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": {
-          "raw": "{{baseUrl}}/user/test",
+          "raw": "{{baseUrl}}/user/me",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "user",
-            "test"
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete User",
+      "id": "0f74de5f-5355-4e4a-bf41-a94a639e5b97",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "    "
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "me"
           ]
         }
       },
