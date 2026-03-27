@@ -4,4 +4,5 @@ node_modules
 
 /generated/prisma
 
-.postman
+.postman/
+!postman/
