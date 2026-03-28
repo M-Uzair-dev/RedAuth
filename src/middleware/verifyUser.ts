@@ -2,7 +2,6 @@ import type { NextFunction, Request, Response } from "express";
 import handleError from "../utils/handleError.js";
 import tokenService from "../services/token.service.js";
 import { appError, errorType } from "../errors/errors.js";
-import prisma from "../lib/prisma.js";
 
 interface AuthCookies {
   accessToken: string | undefined;

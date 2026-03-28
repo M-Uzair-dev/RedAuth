@@ -6,7 +6,6 @@ import { errorType } from "../errors/errors.js";
 import { v4 as uuid } from "uuid";
 import type { Token } from "@prisma/client";
 import type { PrismaClient, Prisma } from "@prisma/client";
-import type { EmailData } from "../queues/email.queue.js";
 
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const REFRESH_TOKEN_EXPIRY = parseInt(process.env.REFRESH_TOKEN_EXPIRY || "");

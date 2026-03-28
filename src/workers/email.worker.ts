@@ -1,7 +1,6 @@
 import { Worker } from "bullmq";
 import { redisConnection } from "../lib/redis.js";
 import { type EmailData } from "../queues/email.queue.js";
-import emailService from "../services/email.service.js";
 import prisma from "../lib/prisma.js";
 
 const emailWorker = new Worker<EmailData>(

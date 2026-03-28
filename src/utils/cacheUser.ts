@@ -4,7 +4,7 @@ import z from "zod";
 
 const userSchema = z.object({
   name: z.string().min(1),
-  email: z.string().email(),
+  email: z.email(),
   id: z.uuid(),
   emailVerified: z.boolean(),
   createdAt: z.coerce.date(),
@@ -14,6 +14,7 @@ const userSchema = z.object({
 const getKey = (id: string) => {
   return `user-${id}`;
 };
+
 const getUserFromCache = async (
   userId: string,
 ): Promise<Omit<User, "password" | "tokens"> | null> => {

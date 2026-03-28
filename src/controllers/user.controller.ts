@@ -3,7 +3,6 @@ import handleError from "../utils/handleError.js";
 import userService from "../services/user.service.js";
 import { appError, errorType } from "../errors/errors.js";
 import userSchema from "../schemas/user.schema.js";
-import { redis } from "../lib/redis.js";
 import cacheUser from "../utils/cacheUser.js";
 
 const getCurrentUser = async (req: Request, res: Response) => {
