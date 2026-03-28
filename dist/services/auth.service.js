@@ -6,10 +6,15 @@ import bcrypt from "bcrypt";
 import { getLoginMeta, getDevice } from "../utils/getRequestInfo.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { redis } from "../lib/redis.js";
 const frontend = process.env.FRONTEND_URL;
 const RESET_TOKEN_SECRET = process.env.RESET_TOKEN_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const VERIFICATION_TOKEN_SECRET = process.env.VERIFICATION_TOKEN_SECRET;
-if (!frontend || !RESET_TOKEN_SECRET || !VERIFICATION_TOKEN_SECRET)
+if (!frontend ||
+    !RESET_TOKEN_SECRET ||
+    !VERIFICATION_TOKEN_SECRET ||
+    !REFRESH_TOKEN_SECRET)
     throw new Error("Some env vars were not found in env");
 const Signup = async (name, email, userPassword, device, req) => {
     const existingUser = await prisma.user.findUnique({
@@ -80,7 +85,15 @@ const forgotPassword = async (email, device) => {
         where: { email },
     });
     if (user) {
-        // User exists - generate token and send real email
+        // create a lock in redis
+        // this will solve the "double click" problem where a user accidentally double clicks and sends two requests at the same time
+        // this will create a "lock" in redis that will last 60 seconds
+        // if we didnt acquire a lock, it means a lock already exists, in that case, we do not send another email
+        const lock = await redis.set(`reset:${user.id}`, "1", "EX", 60, // 1 minute
+        "NX");
+        if (!lock)
+            return true;
+        // User exists - generate token and send email
         const { token, tokenId } = await tokenService.generateForgotPasswordToken(user.id, device);
         try {
             await emailService.sendResetPasswordEmail(user.email, `${frontend}/resetPassword?t=${token}`, tokenId);
@@ -236,6 +249,48 @@ const resendVerificationToken = async (email, device) => {
     }
     return true;
 };
+const logout = async (req) => {
+    try {
+        const refreshToken = req.cookies?.refresh_token;
+        if (!refreshToken)
+            return;
+        const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+        const tokenId = decoded.tokenId;
+        await prisma.token.delete({
+            where: {
+                id: tokenId,
+            },
+        });
+        await redis.set(`revoked-${tokenId}`, "true", "EX", 60 * 30);
+    }
+    catch (e) {
+        return;
+    }
+};
+const logoutAll = async (userId) => {
+    const sessions = await prisma.token.findMany({
+        where: {
+            userId,
+            type: "REFRESH_TOKEN",
+        },
+    });
+    await prisma.token.updateMany({
+        where: {
+            userId,
+            type: "REFRESH_TOKEN",
+        },
+        data: {
+            expiresAt: new Date(),
+        },
+    });
+    await Promise.all(sessions.map(async (session) => {
+        await redis.set(`revoked-${session.id}`, "true", "EX", 60 * 30);
+    }));
+};
+const getNewAccessToken = async (refreshToken, device) => {
+    const newTokens = await tokenService.generateAccessToken(refreshToken, device);
+    return newTokens;
+};
 export default {
     Signup,
     Login,
@@ -243,5 +298,8 @@ export default {
     resetPassword,
     verifyEmail,
     resendVerificationToken,
+    logout,
+    logoutAll,
+    getNewAccessToken,
 };
 //# sourceMappingURL=auth.service.js.map

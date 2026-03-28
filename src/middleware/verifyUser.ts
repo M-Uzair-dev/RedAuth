@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import handleError from "../utils/handleError.js";
 import tokenService from "../services/token.service.js";
 import { appError, errorType } from "../errors/errors.js";
+import { redis } from "../lib/redis.js";
 
 interface AuthCookies {
   accessToken: string | undefined;
@@ -27,9 +28,10 @@ export const verifyUser = async (
       throw new appError(401, "No tokens provided", errorType.UNAUTHORIZED);
     }
 
-    const userId = await tokenService.verifyUser(accessToken, refreshToken);
+    const data = await tokenService.verifyUser(accessToken, refreshToken);
 
-    req.userId = userId;
+    req.userId = data.userId;
+    await redis.set(`last-active-${data.tokenId}`, `${new Date()}`);
     next();
   } catch (e: any) {
     handleError(e, res);

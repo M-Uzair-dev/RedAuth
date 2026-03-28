@@ -39,7 +39,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && copyfiles -u 1 src/emails/*.html dist/",
-    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\"",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch dist --delay 1.5 dist/index.js\"",
     "start": "node dist/index.js"
   },
   "dependencies": {

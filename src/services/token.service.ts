@@ -6,6 +6,7 @@ import { errorType } from "../errors/errors.js";
 import { v4 as uuid } from "uuid";
 import type { Token } from "@prisma/client";
 import type { PrismaClient, Prisma } from "@prisma/client";
+import { redis } from "../lib/redis.js";
 
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const REFRESH_TOKEN_EXPIRY = parseInt(process.env.REFRESH_TOKEN_EXPIRY || "");
@@ -84,9 +85,19 @@ const generateTokens = async (
   // Validate device parameter before proceeding
   validateDevice(device);
 
-  const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, {
-    expiresIn: ACCESS_TOKEN_EXPIRY / 1000,
-  });
+  // generate a new uuid
+  const refreshTokenId = uuid();
+
+  const accessToken = jwt.sign(
+    {
+      tokenId: refreshTokenId,
+      ...payload,
+    },
+    ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: ACCESS_TOKEN_EXPIRY / 1000,
+    },
+  );
 
   // accessToken is made. now here is the issue, we need to store the refresh token
   // in the DB but that DB record's id needs to be in the refresh token payload
@@ -95,9 +106,6 @@ const generateTokens = async (
   // inside of the refresh token payload, this way we can directly look up the record using
   // the uuid without having to do any hashing or comparisons in the DB query which is more
   // efficient and less error prone
-
-  // generate a new uuid
-  const refreshTokenId = uuid();
 
   // create data for the jwt refreshToken
   const refreshTokenPayload: refreshTokenJWTPayload = {
@@ -154,15 +162,30 @@ const generateTokens = async (
 const verifyUser = async (
   accessToken: string,
   refreshToken: string | null,
-): Promise<string> => {
+): Promise<{
+  userId: string;
+  tokenId: string;
+}> => {
   try {
     // at first, we check the access token
-    const data = jwt.verify(accessToken, ACCESS_TOKEN_SECRET) as payloadType;
+    const data = jwt.verify(
+      accessToken,
+      ACCESS_TOKEN_SECRET,
+    ) as refreshTokenJWTPayload;
 
     // if access token was invalid, jwt would've thrown an error and sent us to the catch block
     // coming here means the access token is valid, so we send back the id
 
-    return data.id;
+    // lets make sure the refreshToken is not revoked
+
+    const is_revoked = await redis.get(`revoked-${data.tokenId}`);
+
+    if (is_revoked) throw new Error("Session_Revoked");
+
+    return {
+      userId: data.id,
+      tokenId: data.tokenId,
+    };
   } catch (err) {
     try {
       // we are in the catch block, which means the access token is not valid
@@ -341,21 +364,6 @@ const logout = async (refreshToken: string): Promise<void> => {
   }
 };
 
-const logoutAll = async (userId: string): Promise<number> => {
-  try {
-    const result = await prisma.token.deleteMany({
-      where: {
-        userId,
-        type: "REFRESH_TOKEN",
-      },
-    });
-
-    return result.count;
-  } catch (e) {
-    throw new appError(500, "Something went wrong!");
-  }
-};
-
 const generateForgotPasswordToken = async (
   userId: string,
   device: string,
@@ -445,7 +453,6 @@ export default {
   generateAccessToken,
   verifyUser,
   logout,
-  logoutAll,
   generateForgotPasswordToken,
   generateVerificationToken,
 };

@@ -25,6 +25,9 @@ app.get("/", async (req, res) => {
         message: "Api is working!",
     });
 });
+app.get("/checking", (req, res) => {
+    res.send("WORKING");
+});
 app.get("/health", (req, res) => {
     res.status(200).json({ status: "API is working properly!" });
 });

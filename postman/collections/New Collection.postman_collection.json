@@ -47,7 +47,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"name\": \"Uzair Manan\",\r\n    \"email\": \"uzairmanan3@gmail.com\",\r\n    \"password\": \"Uzairmanandev123!\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "raw": "{\r\n    \"name\": \"Uzair Manan\",\r\n    \"email\": \"uzairmanantesting@gmail.com\",\r\n    \"password\": \"Uzairmanandev123!\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -263,6 +263,128 @@
           "path": [
             "user",
             "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get User Sessions",
+      "id": "84e4fdf5-e58d-4393-a182-edad27804dde",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/user/sessions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "sessions"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Revoke User Session",
+      "id": "3695563b-d6ed-4f47-ac3e-01b4fa0b7f10",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"tokenId\": \"9bc5a138-96d7-4eb7-9cf8-0f44ce2059ea\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/revoke-session",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "revoke-session"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout",
+      "id": "4f60ba54-fc65-471f-bc2a-371f3a6ca7a8",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout All",
+      "id": "0e4b0f1b-0f56-4aa4-a3a3-1a4e1d400f13",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/auth/logout-all",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "logout-all"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get New Access Token",
+      "id": "e4cb6cc4-e1a2-4719-83da-9b81974184b9",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/get-access-token",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "get-access-token"
           ]
         }
       },

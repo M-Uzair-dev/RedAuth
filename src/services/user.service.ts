@@ -1,6 +1,8 @@
-import { Prisma, type User } from "@prisma/client";
+import { Prisma, type Token, type User } from "@prisma/client";
 import prisma from "../lib/prisma.js";
 import { appError, errorType } from "../errors/errors.js";
+import { truncate } from "fs";
+import { redis } from "../lib/redis.js";
 
 const getUser = async (
   id: string,
@@ -62,8 +64,60 @@ const deleteUser = async (userId: string): Promise<boolean> => {
     throw error;
   }
 };
+const getUserSessions = async (
+  userId: string,
+): Promise<
+  {
+    id: string;
+    deviceName: string | null;
+    lastActive: Date | null;
+  }[]
+> => {
+  const userTokens = await prisma.token.findMany({
+    where: {
+      userId,
+      type: "REFRESH_TOKEN",
+    },
+    select: {
+      id: true,
+      deviceName: true,
+      lastActive: true,
+    },
+  });
+  return userTokens;
+};
+const revoke_session = async (userId: string, tokenId: string) => {
+  const token = await prisma.token.findUnique({
+    where: {
+      id: tokenId,
+    },
+  });
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (!token) throw new appError(400, "Token not found.");
+  if (!user) throw new appError(400, "Invalid session, please login again!");
+  if (user.id !== token.userId)
+    throw new appError(401, "Unable to revoke token.");
+
+  await prisma.$transaction(async (tx) => {
+    await tx.token.update({
+      where: {
+        id: token.id,
+      },
+      data: {
+        expiresAt: new Date(),
+      },
+    });
+    await redis.set(`revoked-${token.id}`, "true", "EX", 60 * 30);
+  });
+};
 export default {
   getUser,
   editUser,
   deleteUser,
+  getUserSessions,
+  revoke_session,
 };

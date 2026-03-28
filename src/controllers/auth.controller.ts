@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import handleError from "../utils/handleError.js";
 import authSchema from "../schemas/auth.schema.js";
 import authService from "../services/auth.service.js";
+import { appError, errorType } from "../errors/errors.js";
 
 type Tokens = {
   accessToken: string;
@@ -27,6 +28,10 @@ const accessCookieOptions = {
 const setCookies = (res: Response, tokens: Tokens) => {
   res.cookie("refresh_token", tokens.refreshToken, refreshCookieOptions);
   res.cookie("access_token", tokens.accessToken, accessCookieOptions);
+};
+const clearCookies = (res: Response) => {
+  res.clearCookie("refresh_token");
+  res.clearCookie("access_token");
 };
 
 const login = async (req: Request, res: Response) => {
@@ -123,6 +128,55 @@ const resendVerificationEmail = async (req: Request, res: Response) => {
     handleError(e, res);
   }
 };
+
+const logout = async (req: Request, res: Response) => {
+  try {
+    await authService.logout(req);
+    clearCookies(res);
+    res.status(200).json({
+      success: true,
+      message: "Logout successful!",
+    });
+  } catch (e: any) {
+    handleError(e, res);
+  }
+};
+const logoutAll = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId)
+      throw new appError(400, "User not found!", errorType.USER_NOT_FOUND);
+    await authService.logoutAll(userId);
+    clearCookies(res);
+    res.status(200).json({
+      success: true,
+      message: "Logout successful!",
+    });
+  } catch (e: any) {
+    handleError(e, res);
+  }
+};
+
+const getNewAccessToken = async (req: Request, res: Response) => {
+  try {
+    const { device } = authSchema.newAccessTokenSchema.parse(req.body);
+    const refreshToken = req.cookies?.refresh_token;
+    if (!refreshToken)
+      throw new appError(
+        401,
+        "Refresh token invalid, please login again.",
+        errorType.REFRESH_TOKEN_EXPIRED,
+      );
+    const newTokens = await authService.getNewAccessToken(refreshToken, device);
+    setCookies(res, newTokens);
+    res.status(200).json({
+      success: true,
+      message: "Access token generated successfully",
+    });
+  } catch (e: any) {
+    handleError(e, res);
+  }
+};
 export default {
   login,
   forgotPassword,
@@ -130,4 +184,7 @@ export default {
   signup,
   verifyEmail,
   resendVerificationEmail,
+  logout,
+  logoutAll,
+  getNewAccessToken,
 };

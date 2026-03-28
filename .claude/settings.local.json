@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find 'c:\\\\Users\\\\Noman\\\\Desktop\\\\coding files\\\\1. backends\\\\AuthTemplate' -name .env* -o -name *.env)"
+    ]
+  }
+}

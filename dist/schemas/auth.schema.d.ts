@@ -26,6 +26,12 @@ declare const _default: {
     verifyEmailSchema: z.ZodObject<{
         token: z.ZodString;
     }, z.core.$strip>;
+    logoutSchema: z.ZodObject<{
+        device: z.ZodUUID;
+    }, z.core.$strip>;
+    newAccessTokenSchema: z.ZodObject<{
+        device: z.ZodUUID;
+    }, z.core.$strip>;
 };
 export default _default;
 //# sourceMappingURL=auth.schema.d.ts.map

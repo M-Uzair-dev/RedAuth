@@ -1,3 +1,4 @@
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 import { z } from "zod";
 
 const emailSchema = z
@@ -48,6 +49,12 @@ const resendVerificationTokenSchema = z.object({
 const verifyEmailSchema = z.object({
   token: z.string({ message: "Token is required" }),
 });
+const logoutSchema = z.object({
+  device: deviceSchema,
+});
+const newAccessTokenSchema = z.object({
+  device: deviceSchema,
+});
 export default {
   loginSchema,
   signupSchema,
@@ -55,4 +62,6 @@ export default {
   resetPasswordSchema,
   resendVerificationTokenSchema,
   verifyEmailSchema,
+  logoutSchema,
+  newAccessTokenSchema,
 };

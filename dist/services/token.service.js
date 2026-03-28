@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { appError } from "../errors/errors.js";
 import { errorType } from "../errors/errors.js";
 import { v4 as uuid } from "uuid";
+import { redis } from "../lib/redis.js";
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const REFRESH_TOKEN_EXPIRY = parseInt(process.env.REFRESH_TOKEN_EXPIRY || "");
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -45,7 +46,12 @@ const validateDevice = (device) => {
 const generateTokens = async (payload, device, deviceName = "unknown", db = prisma) => {
     // Validate device parameter before proceeding
     validateDevice(device);
-    const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, {
+    // generate a new uuid
+    const refreshTokenId = uuid();
+    const accessToken = jwt.sign({
+        tokenId: refreshTokenId,
+        ...payload,
+    }, ACCESS_TOKEN_SECRET, {
         expiresIn: ACCESS_TOKEN_EXPIRY / 1000,
     });
     // accessToken is made. now here is the issue, we need to store the refresh token
@@ -55,8 +61,6 @@ const generateTokens = async (payload, device, deviceName = "unknown", db = pris
     // inside of the refresh token payload, this way we can directly look up the record using
     // the uuid without having to do any hashing or comparisons in the DB query which is more
     // efficient and less error prone
-    // generate a new uuid
-    const refreshTokenId = uuid();
     // create data for the jwt refreshToken
     const refreshTokenPayload = {
         ...payload,
@@ -110,7 +114,14 @@ const verifyUser = async (accessToken, refreshToken) => {
         const data = jwt.verify(accessToken, ACCESS_TOKEN_SECRET);
         // if access token was invalid, jwt would've thrown an error and sent us to the catch block
         // coming here means the access token is valid, so we send back the id
-        return data.id;
+        // lets make sure the refreshToken is not revoked
+        const is_revoked = await redis.get(`revoked-${data.tokenId}`);
+        if (is_revoked)
+            throw new Error("Session_Revoked");
+        return {
+            userId: data.id,
+            tokenId: data.tokenId,
+        };
     }
     catch (err) {
         try {
@@ -232,20 +243,6 @@ const logout = async (refreshToken) => {
         throw new appError(500, "An error occurred during logout");
     }
 };
-const logoutAll = async (userId) => {
-    try {
-        const result = await prisma.token.deleteMany({
-            where: {
-                userId,
-                type: "REFRESH_TOKEN",
-            },
-        });
-        return result.count;
-    }
-    catch (e) {
-        throw new appError(500, "Something went wrong!");
-    }
-};
 const generateForgotPasswordToken = async (userId, device, db = prisma) => {
     validateDevice(device);
     const tokenId = uuid();
@@ -311,7 +308,6 @@ export default {
     generateAccessToken,
     verifyUser,
     logout,
-    logoutAll,
     generateForgotPasswordToken,
     generateVerificationToken,
 };

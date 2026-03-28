@@ -19,7 +19,7 @@ cleanupWorker.on("completed", () => {
 });
 tokenCleanupQueue.add("Cleanup-job", {}, {
     repeat: {
-        every: 10000, // 10 minutes
+        every: 600000, // 10 minutes
     },
 });
 //# sourceMappingURL=tokenCleanup.worker.js.map

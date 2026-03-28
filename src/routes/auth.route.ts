@@ -1,6 +1,7 @@
 import Express from "express";
 import authController from "../controllers/auth.controller.js";
 import { generalLimiter } from "../utils/rateLimiter.js";
+import { verifyUser } from "../middleware/verifyUser.js";
 
 const router = Express.Router();
 
@@ -27,6 +28,18 @@ router.post(
   "/resendVerificationEmail",
   stricterEmailLimiter,
   authController.resendVerificationEmail,
+);
+router.post("/logout", strictAuthLimiter, verifyUser, authController.logout);
+router.post(
+  "/logout-all",
+  strictAuthLimiter,
+  verifyUser,
+  authController.logoutAll,
+);
+router.post(
+  "/get-access-token",
+  strictAuthLimiter,
+  authController.getNewAccessToken,
 );
 
 export default router;

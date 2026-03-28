@@ -17,6 +17,12 @@ declare const _default: {
     resetPassword: (newPassword: string, token: string) => Promise<boolean>;
     verifyEmail: (token: string) => Promise<boolean>;
     resendVerificationToken: (email: string, device: string) => Promise<boolean>;
+    logout: (req: Request) => Promise<void>;
+    logoutAll: (userId: string) => Promise<void>;
+    getNewAccessToken: (refreshToken: string, device: string) => Promise<{
+        refreshToken: string;
+        accessToken: string;
+    }>;
 };
 export default _default;
 //# sourceMappingURL=auth.service.d.ts.map

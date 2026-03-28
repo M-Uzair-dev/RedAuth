@@ -12,9 +12,15 @@ import { redis } from "../lib/redis.js";
 
 const frontend = process.env.FRONTEND_URL;
 const RESET_TOKEN_SECRET = process.env.RESET_TOKEN_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const VERIFICATION_TOKEN_SECRET = process.env.VERIFICATION_TOKEN_SECRET;
 
-if (!frontend || !RESET_TOKEN_SECRET || !VERIFICATION_TOKEN_SECRET)
+if (
+  !frontend ||
+  !RESET_TOKEN_SECRET ||
+  !VERIFICATION_TOKEN_SECRET ||
+  !REFRESH_TOKEN_SECRET
+)
   throw new Error("Some env vars were not found in env");
 
 type Tokens = {
@@ -350,7 +356,57 @@ const resendVerificationToken = async (email: string, device: string) => {
 
   return true;
 };
+const logout = async (req: Request): Promise<void> => {
+  try {
+    const refreshToken = req.cookies?.refresh_token;
+    if (!refreshToken) return;
+    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as {
+      tokenId: string;
+      id: string;
+      email: string;
+    };
+    const tokenId = decoded.tokenId;
+    await prisma.token.delete({
+      where: {
+        id: tokenId,
+      },
+    });
+    await redis.set(`revoked-${tokenId}`, "true", "EX", 60 * 30);
+  } catch (e) {
+    return;
+  }
+};
 
+const logoutAll = async (userId: string): Promise<void> => {
+  const sessions = await prisma.token.findMany({
+    where: {
+      userId,
+      type: "REFRESH_TOKEN",
+    },
+  });
+
+  await prisma.token.updateMany({
+    where: {
+      userId,
+      type: "REFRESH_TOKEN",
+    },
+    data: {
+      expiresAt: new Date(),
+    },
+  });
+  await Promise.all(
+    sessions.map(async (session) => {
+      await redis.set(`revoked-${session.id}`, "true", "EX", 60 * 30);
+    }),
+  );
+};
+const getNewAccessToken = async (refreshToken: string, device: string) => {
+  const newTokens = await tokenService.generateAccessToken(
+    refreshToken,
+    device,
+  );
+  return newTokens;
+};
 export default {
   Signup,
   Login,
@@ -358,4 +414,7 @@ export default {
   resetPassword,
   verifyEmail,
   resendVerificationToken,
+  logout,
+  logoutAll,
+  getNewAccessToken,
 };
