@@ -6,6 +6,7 @@ export var errorType;
     errorType[errorType["USER_NOT_FOUND"] = 3] = "USER_NOT_FOUND";
     errorType[errorType["BAD_REQUEST"] = 4] = "BAD_REQUEST";
     errorType[errorType["UNAUTHORIZED"] = 5] = "UNAUTHORIZED";
+    errorType[errorType["TOO_MANY_REQUESTS"] = 6] = "TOO_MANY_REQUESTS";
 })(errorType || (errorType = {}));
 export class appError extends Error {
     statusCode;

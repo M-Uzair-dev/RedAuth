@@ -1,7 +1,6 @@
 import handleError from "../utils/handleError.js";
 import tokenService from "../services/token.service.js";
 import { appError, errorType } from "../errors/errors.js";
-import prisma from "../lib/prisma.js";
 export const getCookies = (req) => {
     return {
         accessToken: req.cookies?.access_token,

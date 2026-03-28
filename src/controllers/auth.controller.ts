@@ -70,7 +70,7 @@ const signup = async (req: Request, res: Response) => {
     handleError(e, res);
   }
 };
-const forgotPasswprd = async (req: Request, res: Response) => {
+const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email, device } = authSchema.forgotPasswordSchema.parse(req.body);
     await authService.forgotPassword(email, device);
@@ -125,7 +125,7 @@ const resendVerificationEmail = async (req: Request, res: Response) => {
 };
 export default {
   login,
-  forgotPasswprd,
+  forgotPassword,
   resetPassword,
   signup,
   verifyEmail,

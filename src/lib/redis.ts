@@ -1,7 +1,4 @@
 import { Redis } from "ioredis";
-import { use } from "react";
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
-import { Emails } from "ua-parser-js/extensions";
 
 const redisConnection = {
   host: process.env.REDIS_HOST || "127.0.0.1",
