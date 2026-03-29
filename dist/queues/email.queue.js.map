@@ -1,1 +1,0 @@
-{"version":3,"file":"email.queue.js","sourceRoot":"","sources":["../../src/queues/email.queue.ts"],"names":[],"mappings":"AAAA,wBAAwB;AACxB,OAAO,EAAE,KAAK,EAAE,MAAM,QAAQ,CAAC;AAC/B,OAAO,EAAE,eAAe,EAAE,MAAM,iBAAiB,CAAC;AASlD,MAAM,CAAC,MAAM,UAAU,GAAG,IAAI,KAAK,CAAY,aAAa,EAAE;IAC5D,UAAU,EAAE,eAAe;CAC5B,CAAC,CAAC"}
