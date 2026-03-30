@@ -275,13 +275,19 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/user/sessions",
+          "raw": "{{baseUrl}}/user/sessions?device=a07d84d7-c822-4e02-b89a-69f0dad7dace",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "user",
             "sessions"
+          ],
+          "query": [
+            {
+              "key": "device",
+              "value": "a07d84d7-c822-4e02-b89a-69f0dad7dace"
+            }
           ]
         }
       },
@@ -357,6 +363,37 @@
           "path": [
             "auth",
             "logout-all"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Change Password",
+      "id": "c7d3e1f2-4a5b-6c7d-8e9f-0a1b2c3d4e5f",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"newPassword\": \"NewSecurePass1!\",\r\n    \"confirmPassword\": \"NewSecurePass1!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/change-password",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "change-password"
           ]
         }
       },
