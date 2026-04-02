@@ -280,11 +280,20 @@ const getRefreshToken = async (
       if (strict) {
         // If this is a strict check, and we are given a deleted refresh token
         // that is a big problem and means data was breached, in that case, we revoke all user sessions
+        const sessions = await prisma.token.findMany({
+          where: { userId: decoded.id, type: "REFRESH_TOKEN" },
+          select: { id: true },
+        });
         await prisma.token.deleteMany({
           where: {
             userId: decoded.id,
           },
         });
+        await Promise.all(
+          sessions.map((session) =>
+            redis.set(`revoked-${session.id}`, "true", "EX", 60 * 30),
+          ),
+        );
       }
       throw new appError(
         401,
