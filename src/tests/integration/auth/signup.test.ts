@@ -1,22 +1,23 @@
 import { generateUserData } from "@/tests/helpers/factories.js";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import request, { type Response } from "supertest";
-import { createDB, stopDB } from "@/tests/helpers/testDB.js";
-import { createRedis, stopRedis } from "@/tests/helpers/testRedis.js";
+import {
+  waitForEmail,
+  getEmailBody,
+  clearEmails,
+} from "@/tests/helpers/testMailpit.js";
 import type { Express } from "express";
+import prisma from "../../helpers/testPrisma.js";
 
 let app: Express;
 
 beforeAll(async () => {
-  await createDB();
-  await createRedis();
   const { default: createServer } = await import("@/utils/createServer.js");
   app = createServer();
 });
 
-afterAll(async () => {
-  await stopDB();
-  await stopRedis();
+beforeEach(async () => {
+  await clearEmails();
 });
 
 const createUser = async (
@@ -114,5 +115,43 @@ describe("POST /auth/signup", () => {
       });
 
     expect(res.status).toBe(409);
+  });
+
+  it("should return 400 when device is missing", async () => {
+    const { name, email, password } = generateUserData();
+    const res = await createUser({ name, email, password });
+    expect(res.status).toBe(400);
+    expect(res.body.type).toBe("VALIDATION_ERROR");
+  });
+
+  it("should return 400 when device is not a valid UUID", async () => {
+    const data = generateUserData({ device: "not-a-uuid" });
+    const res = await createUser(data);
+    expect(res.status).toBe(400);
+    expect(res.body.type).toBe("VALIDATION_ERROR");
+  });
+
+  it("should send a valid, and working verification email after signup.", async () => {
+    const data = generateUserData();
+    const res = await createUser(data);
+    expect(res.status).toBe(201);
+
+    const email = await waitForEmail(data.email, "Verify Your Email Address");
+    const html = await getEmailBody(email.ID);
+    const match = html.match(/\/verify-email\/([a-zA-Z0-9._-]+)/);
+    if (!match) throw new Error("Verification token not found in email");
+    const token = match[1];
+
+    const verifyRes = await request(app)
+      .post("/auth/verifyEmail")
+      .send({ token });
+    expect(verifyRes.status).toBe(200);
+    const userRecord = await prisma.user.findUnique({
+      where: {
+        email: data.email.toLowerCase(),
+      },
+    });
+    if (!userRecord) throw new Error("User was not found in the DB.");
+    expect(userRecord.emailVerified).toBe(true);
   });
 });

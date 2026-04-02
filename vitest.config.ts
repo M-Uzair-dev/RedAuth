@@ -10,7 +10,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    pool: "forks",
+    globalSetup: ["./src/tests/globalSetup.ts"],
+    fileParallelism: false,
+    exclude: ["dist/**", "node_modules/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov", "html"],
