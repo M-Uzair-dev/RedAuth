@@ -199,6 +199,13 @@ describe("/auth/forgotPassword", () => {
     expect(res.status).toBe(400);
   });
 
+  it("should return 400 when reset token is a garbage string", async () => {
+    const res = await request(app)
+      .post("/auth/resetPassword")
+      .send({ token: "not-a-jwt-at-all", newPassword: "NewPassword123!" });
+    expect(res.status).toBe(400);
+  });
+
   it("should return 400 when token or newPassword is missing", async () => {
     const missingToken = await request(app)
       .post("/auth/resetPassword")
