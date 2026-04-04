@@ -1,0 +1,431 @@
+{
+  "info": {
+    "_postman_id": "52633a2d-0a09-4574-82d1-3c809517dc96",
+    "name": "New Collection Copy",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "id": "db63b047-9d23-466b-af33-82b18499ce3f",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"uzairmanantesting@gmail.com\",\r\n    \"password\": \"Uzairmanandev123!\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Signup",
+      "id": "48104329-a9f6-4bc0-b3d9-974259d2af32",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Uzair Manan\",\r\n    \"email\": \"uzairmanan34@gmail.com\",\r\n    \"password\": \"Uzairmanandev123!\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/signup",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Verify Email",
+      "id": "750a57c0-5fc5-46a5-8a99-a72519b81941",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY3YzBlZTI5LTFlNzYtNGQ4Yi05NjY4LTY4ODgwYmIzOGViZSIsInRva2VuSWQiOiI2NTcyZTMxMS04ODlkLTQwMWUtYWNkMS0zNWQ0MmU1NWU5Y2UiLCJpYXQiOjE3NzQ1MzgwMDUsImV4cCI6MTc3NDcxMDgwNX0.9ZcNG5JUiL0xgtTssrftqSoPr3f2V_wjT_oBmZT2gsM\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/verifyEmail",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "verifyEmail"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Resend Verification Email",
+      "id": "1b2bdfe5-b3a7-4de4-9b89-c4a3297d4ffb",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"uzairmanandev@gmail.com\",\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/resendVerificationEmail",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "resendVerificationEmail"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Forgot Password",
+      "id": "a73c0322-3fb6-42a6-8f23-23713b9a440d",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\":\"uzairmanandev@gmail.com\",\r\n    \"device\":\"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/forgotPassword",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "forgotPassword"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Reset Password",
+      "id": "d9d98855-cd42-4b0f-a231-0cc6fb1d7fd1",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY3YzBlZTI5LTFlNzYtNGQ4Yi05NjY4LTY4ODgwYmIzOGViZSIsInRva2VuSWQiOiIxM2UxNzZkYS01YmNhLTRhZGYtYWU5My04ZGRkNzM3OWQzN2QiLCJpYXQiOjE3NzQ1Mzc1MDYsImV4cCI6MTc3NDUzOTMwNn0.DejWdsxxBPVgFqSYH9x3IgddKHK4QkwRgdzyXnPul-w\",\r\n    \"newPassword\": \"Uzairmanandev5762!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/resetPassword",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "resetPassword"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Current User",
+      "id": "84ac7ef5-1911-46d6-ae58-0c2f09ced9bd",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Edit User",
+      "id": "8ce7414b-df48-4e4f-9eee-d49f0589bf5e",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"New Name\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete User",
+      "id": "9560562f-291e-4a00-84e0-f13df8f07b2c",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "    "
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get User Sessions",
+      "id": "3ad590f9-116b-490b-b8b2-6654e722cfb1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/user/sessions?device=a07d84d7-c822-4e02-b89a-69f0dad7dace",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "sessions"
+          ],
+          "query": [
+            {
+              "key": "device",
+              "value": "a07d84d7-c822-4e02-b89a-69f0dad7dace"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Revoke User Session",
+      "id": "2d3b0021-18ee-4859-bb80-04b235cfa694",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"tokenId\": \"9bc5a138-96d7-4eb7-9cf8-0f44ce2059ea\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/revoke-session",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user",
+            "revoke-session"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout",
+      "id": "eec893aa-b0b6-458f-ac28-b8049abe8724",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout All",
+      "id": "84330bea-0803-4594-b91f-665cb1fe8c11",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/auth/logout-all",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "logout-all"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Change Password",
+      "id": "42d7598b-be16-470b-a1da-d88a6d5e0aca",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"newPassword\": \"NewSecurePass1!\",\r\n    \"confirmPassword\": \"NewSecurePass1!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/change-password",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "change-password"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get New Access Token",
+      "id": "e89fba58-6d8c-4fa4-b298-6f4bb6a162d5",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"device\": \"a07d84d7-c822-4e02-b89a-69f0dad7dace\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/get-access-token",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "get-access-token"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import prisma from "../lib/prisma.js";
-import { appError } from "../errors/errors.js";
+import { appError, errorType } from "../errors/errors.js";
 import tokenService from "./token.service.js";
 import emailService from "./email.service.js";
 import bcrypt from "bcrypt";
@@ -17,13 +17,14 @@ if (!frontend ||
     !REFRESH_TOKEN_SECRET)
     throw new Error("Some env vars were not found in env");
 const Signup = async (name, email, userPassword, device, req) => {
+    email = email.toLowerCase();
     const existingUser = await prisma.user.findUnique({
         where: {
             email,
         },
     });
     if (existingUser)
-        throw new appError(400, "A user with this email already exists.");
+        throw new appError(409, "A user with this email already exists.");
     const hashedPassword = await bcrypt.hash(userPassword, 12);
     let response = await prisma.$transaction(async (tx) => {
         const newUser = await tx.user.create({
@@ -60,7 +61,7 @@ const Login = async (email, userPassword, device, req) => {
     const dummyHash = "$2a$12$R9h/cIPz0gi.URQHeNHGaOTmMiYeL7WrgfU8tBvGvN/7oW6Lp2T3.";
     const isMatch = await bcrypt.compare(userPassword, user?.password || dummyHash);
     if (!user || !isMatch)
-        throw new appError(404, "Invalid Credentials");
+        throw new appError(401, "Invalid Credentials");
     const loginData = await getLoginMeta(req);
     const tokens = await tokenService.generateTokens({
         id: user.id,

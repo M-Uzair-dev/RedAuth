@@ -309,13 +309,13 @@
           }
         },
         "url": {
-          "raw": "{{baseUrl}}/user/revoke-session",
+          "raw": "{{baseUrl}}/user/revokeSession",
           "host": [
             "{{baseUrl}}"
           ],
           "path": [
             "user",
-            "revoke-session"
+            "revokeSession"
           ]
         }
       },

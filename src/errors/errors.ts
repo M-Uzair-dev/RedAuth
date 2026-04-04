@@ -6,6 +6,8 @@ export enum errorType {
   BAD_REQUEST = "BAD_REQUEST",
   UNAUTHORIZED = "UNAUTHORIZED",
   TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS",
+  NOT_FOUND = "NOT_FOUND",
+  FORBIDDEN = "FORBIDDEN",
 }
 
 export class appError extends Error {

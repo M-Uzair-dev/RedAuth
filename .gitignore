@@ -7,4 +7,8 @@ node_modules
 .postman/
 !postman/
 
-# /dist/*
+/docs/*
+
+postman/*
+
+coverage/

@@ -14,7 +14,7 @@ const getUser = async (
   });
   if (!user) {
     if (!throwErrorIfNotFound) return user;
-    throw new appError(404, "User not found!");
+    throw new appError(404, "User not found!", errorType.USER_NOT_FOUND);
   }
   const { password, ...rest } = user;
   return rest;
@@ -98,10 +98,15 @@ const revoke_session = async (userId: string, tokenId: string) => {
       id: userId,
     },
   });
-  if (!token) throw new appError(400, "Token not found.");
+  if (!token)
+    throw new appError(404, "Session not found.", errorType.NOT_FOUND);
   if (!user) throw new appError(400, "Invalid session, please login again!");
   if (user.id !== token.userId)
-    throw new appError(401, "Unable to revoke token.");
+    throw new appError(
+      403,
+      "You do not have permission to revoke this session.",
+      errorType.FORBIDDEN,
+    );
 
   await prisma.$transaction(async (tx) => {
     await tx.token.update({

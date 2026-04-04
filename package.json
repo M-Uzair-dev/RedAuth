@@ -37,12 +37,17 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc && copyfiles -u 1 src/emails/*.html dist/",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch dist --delay 1.5 dist/index.js\"",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:unit": "vitest run src/tests/unit",
+    "test:integration": "vitest run src/tests/integration"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.4.0",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.6.0",
     "bcrypt": "^6.0.0",
@@ -66,6 +71,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "^11.13.0",
+    "@testcontainers/redis": "^11.13.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -75,11 +82,15 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^7.0.11",
     "@types/pg": "^8.20.0",
+    "@types/supertest": "^7.2.0",
     "@types/ua-parser-js": "^0.7.39",
+    "@vitest/coverage-v8": "^4.1.2",
     "concurrently": "^9.2.1",
     "copyfiles": "^2.4.1",
     "nodemon": "^3.1.14",
     "prisma": "^7.6.0",
-    "tsc-node": "^0.0.3"
+    "supertest": "^7.2.2",
+    "tsc-node": "^0.0.3",
+    "vitest": "^4.1.2"
   }
 }

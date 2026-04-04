@@ -1,3 +1,2 @@
-import "./workers/email.worker.js";
-import "./workers/tokenCleanup.worker.js";
+import "dotenv/config";
 //# sourceMappingURL=index.d.ts.map

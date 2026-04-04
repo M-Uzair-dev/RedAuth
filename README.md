@@ -205,7 +205,7 @@ Full request/response documentation for all 14 endpoints is in **[API_ROUTES.md]
 | `PATCH` | `/user/me` | Yes | Update current user |
 | `DELETE` | `/user/me` | Yes | Delete account |
 | `GET` | `/user/sessions` | Yes | List all active sessions |
-| `POST` | `/user/revoke-session` | Yes | Revoke a specific session |
+| `POST` | `/user/revokeSession` | Yes | Revoke a specific session |
 
 ### Postman
 

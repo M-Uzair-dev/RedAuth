@@ -5,6 +5,8 @@ export const generalLimiter = (data) => {
     const { windowSeconds, maxRequests } = data;
     return async function rateLimiter(req, res, next) {
         try {
+            if (process.env.NODE_ENV === "test")
+                return next();
             const key = `rateLimit-${req.ip}`;
             const currentTime = Date.now();
             await redis.zadd(key, currentTime, `${currentTime}`);

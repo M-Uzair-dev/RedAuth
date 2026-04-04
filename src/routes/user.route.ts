@@ -8,6 +8,6 @@ router.get("/me", verifyUser, userController.getCurrentUser);
 router.patch("/me", verifyUser, userController.updateCurrentUser);
 router.delete("/me", verifyUser, userController.deleteCurrentUser);
 router.get("/sessions", verifyUser, userController.getUserSessions);
-router.post("/revoke-session", verifyUser, userController.revokeSession);
+router.post("/revokeSession", verifyUser, userController.revokeSession);
 
 export default router;

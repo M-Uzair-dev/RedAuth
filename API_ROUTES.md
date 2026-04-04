@@ -208,7 +208,7 @@ Authenticate with email and password. Sets `access_token` and `refresh_token` co
 ### Errors
 | Status | Message | Type |
 |---|---|---|
-| `404` | `"Invalid Credentials"` | `"INVALID_CREDENTIALS"` |
+| `401` | `"Invalid Credentials"` | `"INVALID_CREDENTIALS"` |
 | `400` | Validation errors | `"VALIDATION_ERROR"` |
 | `429` | `"Too many requests, please wait before retrying!"` | `"TOO_MANY_REQUESTS"` |
 
