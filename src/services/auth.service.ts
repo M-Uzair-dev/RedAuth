@@ -9,6 +9,7 @@ import type { Request } from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { redis } from "../lib/redis.js";
+import { logger } from "../lib/logger.js";
 
 const frontend = process.env.FRONTEND_URL;
 const RESET_TOKEN_SECRET = process.env.RESET_TOKEN_SECRET;
@@ -46,8 +47,9 @@ const Signup = async (
       email,
     },
   });
-  if (existingUser)
-    throw new appError(409, "A user with this email already exists.");
+  if (existingUser) {
+    throw new appError(409, "A user with this email already exists.", errorType.BAD_REQUEST);
+  }
   const hashedPassword = await bcrypt.hash(userPassword, 12);
 
   let response = await prisma.$transaction(async (tx) => {
@@ -130,7 +132,7 @@ const Login = async (
       loginData,
     );
   } catch (error) {
-    console.error("Failed to send login alert:", error);
+    logger.error({ err: error }, "Failed to send login alert email");
   }
 
   const { password, ...rest } = user;
@@ -341,7 +343,7 @@ const resendVerificationToken = async (email: string, device: string) => {
       tokenId,
     );
   } catch (error) {
-    console.error("Email failed to send:", error);
+    logger.error({ err: error }, "Verification email failed to send");
 
     await prisma.token.deleteMany({
       where: { userId: user.id, type: "EMAIL_VERIFICATION" },

@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 import { emailQueue } from "../queues/email.queue.js";
+import { logger } from "../lib/logger.js";
 const RESET_TOKEN_EXPIRY = parseInt(process.env.RESET_TOKEN_EXPIRY || "");
 if (!RESET_TOKEN_EXPIRY)
     throw new Error("RESET_TOKEN_EXPIRY environment variable is not set or invalid");
@@ -29,7 +30,7 @@ export const addEmailJob = async (data) => {
     });
 };
 export const sendEmail = async (to, subject, html) => {
-    console.log("Sending email...");
+    logger.debug({ to, subject }, "Sending email");
     await transporter.sendMail({
         from: `"Your App" <${process.env.MAIL_USER}>`,
         to,
@@ -41,7 +42,7 @@ const sendVerificationEmail = async (to, url, tokenId) => {
     const templatePath = path.join(__dirname, "../emails/emailVerification.html");
     let html = fs.readFileSync(templatePath, "utf-8");
     html = html.replace(/{{url}}/g, url);
-    console.log("Adding email job to send email to : ", to);
+    logger.debug({ to }, "Queuing verification email");
     await addEmailJob({
         to,
         subject: "Verify Your Email Address",

@@ -69,12 +69,13 @@ const deleteCurrentUser = async (req: Request, res: Response) => {
     const success = await userService.deleteUser(req.userId);
     if (success) {
       await cacheUser.deleteUserFromCache(req.userId);
-
+      req.log.info({ userId: req.userId }, "User deleted successfully");
       return res.status(200).json({
         success: true,
         message: "User deleted successfully!",
       });
     }
+    req.log.error({ userId: req.userId }, "Failed to delete user");
     throw new appError(404, "User not found!", errorType.USER_NOT_FOUND);
   } catch (e: any) {
     handleError(e, res);
@@ -121,6 +122,7 @@ const revokeSession = async (req: Request, res: Response) => {
     const { tokenId } = userSchema.revokeSessionSchema.parse(req.body);
 
     await userService.revoke_session(req.userId, tokenId);
+    req.log.info({ userId: req.userId, tokenId }, "Session revoked");
     return res.status(200).json({
       success: true,
       message: "Sessions revoked successfully!",

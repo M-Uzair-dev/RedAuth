@@ -2,11 +2,12 @@ import { Worker } from "bullmq";
 import { redisConnection } from "../lib/redis.js";
 import prisma from "../lib/prisma.js";
 import { tokenCleanupQueue } from "../queues/tokenCleanup.queue.js";
+import { logger } from "../lib/logger.js";
 
 const cleanupWorker = new Worker(
   "tokenCleanupQueue",
   async () => {
-    console.log("Cleaning expired tokens...");
+    logger.debug("Token cleanup job started");
     await prisma.token.deleteMany({
       where: {
         expiresAt: {
@@ -21,7 +22,7 @@ const cleanupWorker = new Worker(
 );
 
 cleanupWorker.on("completed", () => {
-  console.log("Cleaned tokens!");
+  logger.info("Expired tokens cleaned up");
 });
 
 await tokenCleanupQueue.upsertJobScheduler(

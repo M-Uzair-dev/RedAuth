@@ -29,6 +29,7 @@ const login = async (req, res) => {
         const { email, password, device } = authSchema.loginSchema.parse(req.body);
         const response = await authService.Login(email, password, device, req);
         setCookies(res, response.tokens);
+        req.log.info({ userId: response.user.id }, "User logged in");
         res.status(200).json({
             success: true,
             message: "Login successful",
@@ -46,6 +47,7 @@ const signup = async (req, res) => {
         const { name, email, password, device } = authSchema.signupSchema.parse(req.body);
         const response = await authService.Signup(name, email, password, device, req);
         setCookies(res, response.tokens);
+        req.log.info({ userId: response.user.id }, "User signed up");
         res.status(201).json({
             success: true,
             message: "Signup successful",
@@ -62,6 +64,7 @@ const forgotPassword = async (req, res) => {
     try {
         const { email, device } = authSchema.forgotPasswordSchema.parse(req.body);
         await authService.forgotPassword(email, device);
+        req.log.info({ email }, "Password reset email sent");
         res.status(200).json({
             success: true,
             message: "Password reset email sent!",
@@ -75,6 +78,7 @@ const resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = authSchema.resetPasswordSchema.parse(req.body);
         await authService.resetPassword(newPassword, token);
+        req.log.info({ token }, "Password reset successful");
         res.status(200).json({
             success: true,
             message: "Password reset Successful, please login!",
@@ -88,6 +92,7 @@ const verifyEmail = async (req, res) => {
     try {
         const { token } = authSchema.verifyEmailSchema.parse(req.body);
         await authService.verifyEmail(token);
+        req.log.info({ token }, "Email verification successful");
         res.status(200).json({
             success: true,
             message: "Email verification successful!",
@@ -101,6 +106,7 @@ const resendVerificationEmail = async (req, res) => {
     try {
         const { email, device } = authSchema.resendVerificationTokenSchema.parse(req.body);
         await authService.resendVerificationToken(email, device);
+        req.log.info({ email }, "Verification email resent");
         res.status(200).json({
             success: true,
             message: "Verification email sent successfully!",
@@ -114,6 +120,7 @@ const logout = async (req, res) => {
     try {
         await authService.logout(req);
         clearCookies(res);
+        req.log.info({ userId: req.userId }, "User logged out");
         res.status(200).json({
             success: true,
             message: "Logout successful!",
@@ -130,6 +137,7 @@ const logoutAll = async (req, res) => {
             throw new appError(400, "User not found!", errorType.USER_NOT_FOUND);
         await authService.logoutAll(userId);
         clearCookies(res);
+        req.log.info({ userId }, "User logged out from all devices");
         res.status(200).json({
             success: true,
             message: "Logout successful!",
@@ -147,6 +155,7 @@ const getNewAccessToken = async (req, res) => {
             throw new appError(401, "Refresh token invalid, please login again.", errorType.REFRESH_TOKEN_EXPIRED);
         const newTokens = await authService.getNewAccessToken(refreshToken, device);
         setCookies(res, newTokens);
+        req.log.info({ userId: req.userId }, "New access token generated");
         res.status(200).json({
             success: true,
             message: "Access token generated successfully",
@@ -166,6 +175,7 @@ const changePassword = async (req, res) => {
             throw new appError(400, "Passwords do not match", errorType.BAD_REQUEST);
         await authService.changePassword(userId, newPassword);
         clearCookies(res);
+        req.log.info({ userId }, "Password changed, user logged out");
         res.status(200).json({
             success: true,
             message: "Password changed successfully, please login again!",

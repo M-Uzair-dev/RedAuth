@@ -3,13 +3,12 @@ import { redisConnection } from "../lib/redis.js";
 import { type EmailData } from "../queues/email.queue.js";
 import prisma from "../lib/prisma.js";
 import emailService from "../services/email.service.js";
+import { logger } from "../lib/logger.js";
 
 const emailWorker = new Worker<EmailData>(
   "email-queue",
   async (job) => {
     const { to, subject, html } = job.data;
-
-    console.log("Processing email job:", job.data.to);
 
     await emailService.sendEmail(to, subject, html);
   },
@@ -20,7 +19,7 @@ const emailWorker = new Worker<EmailData>(
 );
 
 emailWorker.on("completed", (job) => {
-  console.log(`Email job ${job.id} completed`);
+  logger.info({ email: job.data.to }, `Email job ${job.id} completed`);
 });
 
 emailWorker.on("failed", async (job, err) => {
@@ -29,7 +28,10 @@ emailWorker.on("failed", async (job, err) => {
   const isFinalAttempt = job.attemptsMade === job.opts.attempts;
 
   if (isFinalAttempt) {
-    console.error(`❌ FINAL failure for job ${job.id}`);
+    logger.error(
+      { jobId: job.id, err, attemptsMade: job.attemptsMade },
+      "Email job permanently failed — deleting associated token",
+    );
 
     const data = job.data;
 
@@ -42,6 +44,13 @@ emailWorker.on("failed", async (job, err) => {
     }
     // nice
   } else {
-    console.warn(`⚠️ Attempt ${job.attemptsMade} failed for job ${job.id}`);
+    logger.warn(
+      {
+        jobId: job.id,
+        attemptsMade: job.attemptsMade,
+        error: err.message,
+      },
+      `Attempt ${job.attemptsMade} failed for job ${job.id}`,
+    );
   }
 });

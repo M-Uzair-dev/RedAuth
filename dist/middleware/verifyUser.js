@@ -17,6 +17,7 @@ export const verifyUser = async (req, res, next) => {
         const data = await tokenService.verifyUser(accessToken, refreshToken);
         req.userId = data.userId;
         await redis.set(`last-active-${data.tokenId}`, `${new Date()}`, "EX", 604800);
+        req.log.debug({ userId: req.userId }, "Request authenticated");
         next();
     }
     catch (e) {

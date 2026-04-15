@@ -7,6 +7,7 @@ import { v4 as uuid } from "uuid";
 import type { Token } from "@prisma/client";
 import type { PrismaClient, Prisma } from "@prisma/client";
 import { redis } from "../lib/redis.js";
+import { logger } from "../lib/logger.js";
 
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const REFRESH_TOKEN_EXPIRY = parseInt(process.env.REFRESH_TOKEN_EXPIRY || "");
@@ -29,16 +30,19 @@ if (
   !VERIFICATION_TOKEN_SECRET ||
   !VERIFICATION_TOKEN_EXPIRY
 ) {
-  console.log({
-    REFRESH_TOKEN_EXPIRY,
-    REFRESH_TOKEN_SECRET,
-    ACCESS_TOKEN_SECRET,
-    ACCESS_TOKEN_EXPIRY,
-    RESET_TOKEN_EXPIRY,
-    RESET_TOKEN_SECRET,
-    VERIFICATION_TOKEN_SECRET,
-    VERIFICATION_TOKEN_EXPIRY,
-  });
+  logger.fatal(
+    {
+      REFRESH_TOKEN_EXPIRY: !!REFRESH_TOKEN_EXPIRY,
+      REFRESH_TOKEN_SECRET: !!REFRESH_TOKEN_SECRET,
+      ACCESS_TOKEN_SECRET: !!ACCESS_TOKEN_SECRET,
+      ACCESS_TOKEN_EXPIRY: !!ACCESS_TOKEN_EXPIRY,
+      RESET_TOKEN_EXPIRY: !!RESET_TOKEN_EXPIRY,
+      RESET_TOKEN_SECRET: !!RESET_TOKEN_SECRET,
+      VERIFICATION_TOKEN_SECRET: !!VERIFICATION_TOKEN_SECRET,
+      VERIFICATION_TOKEN_EXPIRY: !!VERIFICATION_TOKEN_EXPIRY,
+    },
+    "Missing required JWT environment variables",
+  );
   throw new Error("JWT Secret is required!");
 }
 type payloadType = {
@@ -366,7 +370,7 @@ const logout = async (refreshToken: string): Promise<void> => {
     }
 
     // Unexpected error (e.g., DB connection failure) - log it for debugging
-    console.error("Unexpected error during logout:", error);
+    logger.error({ err: error }, "Unexpected error during logout");
 
     // Re-throw unexpected errors so they can be handled by the caller
     throw new appError(500, "An error occurred during logout");

@@ -5,6 +5,7 @@ import { appError } from "../errors/errors.js";
 import { errorType } from "../errors/errors.js";
 import { v4 as uuid } from "uuid";
 import { redis } from "../lib/redis.js";
+import { logger } from "../lib/logger.js";
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const REFRESH_TOKEN_EXPIRY = parseInt(process.env.REFRESH_TOKEN_EXPIRY || "");
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
@@ -21,16 +22,16 @@ if (!REFRESH_TOKEN_EXPIRY ||
     !RESET_TOKEN_SECRET ||
     !VERIFICATION_TOKEN_SECRET ||
     !VERIFICATION_TOKEN_EXPIRY) {
-    console.log({
-        REFRESH_TOKEN_EXPIRY,
-        REFRESH_TOKEN_SECRET,
-        ACCESS_TOKEN_SECRET,
-        ACCESS_TOKEN_EXPIRY,
-        RESET_TOKEN_EXPIRY,
-        RESET_TOKEN_SECRET,
-        VERIFICATION_TOKEN_SECRET,
-        VERIFICATION_TOKEN_EXPIRY,
-    });
+    logger.fatal({
+        REFRESH_TOKEN_EXPIRY: !!REFRESH_TOKEN_EXPIRY,
+        REFRESH_TOKEN_SECRET: !!REFRESH_TOKEN_SECRET,
+        ACCESS_TOKEN_SECRET: !!ACCESS_TOKEN_SECRET,
+        ACCESS_TOKEN_EXPIRY: !!ACCESS_TOKEN_EXPIRY,
+        RESET_TOKEN_EXPIRY: !!RESET_TOKEN_EXPIRY,
+        RESET_TOKEN_SECRET: !!RESET_TOKEN_SECRET,
+        VERIFICATION_TOKEN_SECRET: !!VERIFICATION_TOKEN_SECRET,
+        VERIFICATION_TOKEN_EXPIRY: !!VERIFICATION_TOKEN_EXPIRY,
+    }, "Missing required JWT environment variables");
     throw new Error("JWT Secret is required!");
 }
 const validateDevice = (device) => {
@@ -182,11 +183,16 @@ const getRefreshToken = async (refreshToken, strict = false) => {
             if (strict) {
                 // If this is a strict check, and we are given a deleted refresh token
                 // that is a big problem and means data was breached, in that case, we revoke all user sessions
+                const sessions = await prisma.token.findMany({
+                    where: { userId: decoded.id, type: "REFRESH_TOKEN" },
+                    select: { id: true },
+                });
                 await prisma.token.deleteMany({
                     where: {
                         userId: decoded.id,
                     },
                 });
+                await Promise.all(sessions.map((session) => redis.set(`revoked-${session.id}`, "true", "EX", 60 * 30)));
             }
             throw new appError(401, "Session revoked or expired. Please login again.", errorType.REFRESH_TOKEN_EXPIRED);
         }
@@ -238,7 +244,7 @@ const logout = async (refreshToken) => {
             return;
         }
         // Unexpected error (e.g., DB connection failure) - log it for debugging
-        console.error("Unexpected error during logout:", error);
+        logger.error({ err: error }, "Unexpected error during logout");
         // Re-throw unexpected errors so they can be handled by the caller
         throw new appError(500, "An error occurred during logout");
     }
