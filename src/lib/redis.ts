@@ -1,4 +1,5 @@
 import { Redis } from "ioredis";
+import { logger } from "./logger.js";
 
 const isProd = !!process.env.REDIS_URL;
 
@@ -21,11 +22,11 @@ const redis = isProd
 
 if (redis instanceof Redis) {
   redis.on("ready", () => {
-    console.log("✅ Redis connected");
+    logger.info("✅ Redis connected");
   });
 
   redis.on("error", (err) => {
-    console.error("❌ Redis error:", err);
+    logger.error({ message: "❌ Redis error:", err });
   });
 }
 

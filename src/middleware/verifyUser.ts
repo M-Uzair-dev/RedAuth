@@ -37,6 +37,7 @@ export const verifyUser = async (
       "EX",
       604800, // 7 days
     );
+    req.log.debug({ userId: req.userId }, "Request authenticated");
     next();
   } catch (e: any) {
     handleError(e, res);

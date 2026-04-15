@@ -24,7 +24,8 @@ const getVerificationToken = async (email: string): Promise<string> => {
   const emailMessage = await waitForEmail(email, "Verify Your Email Address");
   const html = await getEmailBody(emailMessage.ID);
   const match = html.match(/\/verify-email\/([a-zA-Z0-9._-]+)/);
-  if (!match) throw new Error("Verification token not found in email");
+  if (!match || !match[1])
+    throw new Error("Verification token not found in email");
   return match[1];
 };
 
@@ -52,9 +53,7 @@ describe("POST /auth/verifyEmail", () => {
       data: { expiresAt: new Date() },
     });
 
-    const res = await request(app)
-      .post("/auth/verifyEmail")
-      .send({ token });
+    const res = await request(app).post("/auth/verifyEmail").send({ token });
 
     expect(res.status).toBe(400);
   });

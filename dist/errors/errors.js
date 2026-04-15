@@ -7,6 +7,8 @@ export var errorType;
     errorType["BAD_REQUEST"] = "BAD_REQUEST";
     errorType["UNAUTHORIZED"] = "UNAUTHORIZED";
     errorType["TOO_MANY_REQUESTS"] = "TOO_MANY_REQUESTS";
+    errorType["NOT_FOUND"] = "NOT_FOUND";
+    errorType["FORBIDDEN"] = "FORBIDDEN";
 })(errorType || (errorType = {}));
 export class appError extends Error {
     statusCode;

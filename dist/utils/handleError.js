@@ -1,9 +1,15 @@
 import { ZodError } from "zod";
 import { appError } from "../errors/errors.js";
+import { logger } from "../lib/logger.js";
 let handleError = (e, res) => {
     // this is the fun part, we handle different errors differently
     // if this is our custom thrown error, we handle it differently because it has an extra statusCode property
     if (e instanceof appError) {
+        logger.error({
+            message: e.message,
+            statusCode: e.statusCode,
+            type: e.type || "APP_ERROR",
+        }, "App Error");
         return res.status(e.statusCode).json({
             success: false,
             message: e.message,
@@ -12,6 +18,9 @@ let handleError = (e, res) => {
     }
     // if its a zod error, we handle it according to zod's structure, using the (.issues) and mapping it to make it more readable.
     if (e instanceof ZodError) {
+        logger.warn({
+            issues: e.issues,
+        }, "Validation Error");
         return res.status(400).json({
             success: false,
             message: "Validation failed",
@@ -23,7 +32,7 @@ let handleError = (e, res) => {
         });
     }
     // if it's something else, send a 500 and an "Internal Server Error"
-    console.log("An error occurred: ", e);
+    logger.fatal({ message: e.message, stack: e.stack }, "Unexpected Error");
     res.status(500).json({ success: false, message: "Internal Server Error" });
 };
 export default handleError;

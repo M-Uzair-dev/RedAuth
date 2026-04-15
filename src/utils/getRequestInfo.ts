@@ -1,5 +1,6 @@
 import type { Request } from "express";
 import { UAParser } from "ua-parser-js";
+import { logger } from "../lib/logger.js";
 
 export type LoginMeta = {
   ip: string;
@@ -51,7 +52,7 @@ export const getLoginMeta = async (req: Request): Promise<LoginMeta> => {
   } catch (error: any) {
     // Timeout or network error - fail silently
     if (error.name === "AbortError") {
-      console.error("IP geolocation request timed out");
+      logger.warn({ ip }, "IP geolocation request timed out");
     }
   }
 
@@ -59,13 +60,7 @@ export const getLoginMeta = async (req: Request): Promise<LoginMeta> => {
     hour: "numeric",
     minute: "2-digit",
   });
-  console.log({
-    ip,
-    location,
-    browser,
-    device,
-    time,
-  });
+  logger.debug({ ip, location, browser, device, time }, "Login metadata resolved");
   return {
     ip,
     location,

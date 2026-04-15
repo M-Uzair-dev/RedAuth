@@ -1,18 +1,11 @@
 import { generateLoginData, generateUserData, } from "@/tests/helpers/factories.js";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import request, {} from "supertest";
-import { createDB, stopDB } from "@/tests/helpers/testDB.js";
-import { createRedis, stopRedis } from "@/tests/helpers/testRedis.js";
+import prisma from "@/tests/helpers/testPrisma.js";
 let app;
 beforeAll(async () => {
-    await createDB();
-    await createRedis();
     const { default: createServer } = await import("@/utils/createServer.js");
     app = createServer();
-});
-afterAll(async () => {
-    await stopDB();
-    await stopRedis();
 });
 const createUser = async (data) => {
     await request(app).post("/auth/signup").send(data);
@@ -89,6 +82,40 @@ describe("POST /auth/login", () => {
         const res = await loginUser(loginData);
         expect(res.status).toBe(200);
         expect(res.body.data.user.email).toBe(data.email.toLowerCase());
+    });
+    it("should return 400 when email format is invalid", async () => {
+        const { device, password } = generateUserData();
+        const res = await loginUser({ email: "not-an-email", password, device });
+        expect(res.status).toBe(400);
+        expect(res.headers["set-cookie"]).toBeUndefined();
+    });
+    it("should return 400 when device is not a valid UUID", async () => {
+        const { email, password } = generateUserData();
+        const res = await loginUser({ email, password, device: "my-laptop" });
+        expect(res.status).toBe(400);
+        expect(res.headers["set-cookie"]).toBeUndefined();
+    });
+    it("should support multiple concurrent sessions across different devices", async () => {
+        const data = generateUserData();
+        await createUser(data);
+        const deviceA = generateUserData().device;
+        const deviceB = generateUserData().device;
+        const resA = await loginUser({
+            ...generateLoginData(data),
+            device: deviceA,
+        });
+        const resB = await loginUser({
+            ...generateLoginData(data),
+            device: deviceB,
+        });
+        expect(resA.status).toBe(200);
+        expect(resB.status).toBe(200);
+        const userId = resA.body.data.user.id;
+        const sessions = await prisma.token.findMany({
+            where: { userId, type: "REFRESH_TOKEN" },
+        });
+        // signup also creates one session, so there should be at least 2 from the two logins
+        expect(sessions.length).toBeGreaterThanOrEqual(2);
     });
 });
 //# sourceMappingURL=login.test.js.map

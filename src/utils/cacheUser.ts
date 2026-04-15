@@ -1,6 +1,7 @@
 import type { User } from "@prisma/client";
 import { redis } from "../lib/redis.js";
 import z from "zod";
+import { logger } from "../lib/logger.js";
 
 const userSchema = z.object({
   name: z.string().min(1),
@@ -29,12 +30,12 @@ const getUserFromCache = async (
       const validatedUserData = userSchema.parse(userData);
       return validatedUserData;
     } catch (parseError) {
-      console.error(`Cache corruption for key ${key}:`, parseError);
+      logger.error({ err: parseError, key }, "Cache corruption detected — evicting key");
       await redis.del(key).catch(() => {});
       return null;
     }
   } catch (e) {
-    console.error("REDIS_GET_ERROR:", e);
+    logger.error({ err: e }, "Redis GET failed");
     return null;
   }
 };
@@ -50,7 +51,7 @@ const addUserToCache = async (
     await redis.set(key, JSON.stringify(validatedData), "EX", EX);
     return true;
   } catch (e) {
-    console.error("REDIS_SET_ERROR:", e);
+    logger.error({ err: e }, "Redis SET failed");
     return false;
   }
 };
@@ -61,7 +62,7 @@ const deleteUserFromCache = async (userId: string): Promise<boolean> => {
     await redis.del(key);
     return true;
   } catch (e) {
-    console.error("REDIS_DEL_ERROR:", e);
+    logger.error({ err: e }, "Redis DEL failed");
     return false;
   }
 };

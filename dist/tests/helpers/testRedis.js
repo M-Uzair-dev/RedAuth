@@ -1,13 +1,15 @@
 import { RedisContainer, StartedRedisContainer } from "@testcontainers/redis";
-let container;
-export const createRedis = async () => {
-    container = await new RedisContainer("redis:7-alpine").start();
-    const host = container.getHost();
-    const port = container.getPort();
-    process.env.REDIS_HOST = host;
-    process.env.REDIS_PORT = `${port}`;
+import { Redis } from "ioredis";
+let redis;
+const getRedis = () => {
+    redis = new Redis({
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT),
+    });
+    return redis;
 };
-export const stopRedis = async () => {
-    container.stop();
+const flushRedis = async () => {
+    await redis.flushall();
 };
+export { flushRedis, getRedis };
 //# sourceMappingURL=testRedis.js.map

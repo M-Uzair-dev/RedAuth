@@ -1,4 +1,5 @@
-import { beforeAll } from "vitest";
+import { beforeAll, beforeEach } from "vitest";
+import prisma from "./helpers/testPrisma.js";
 beforeAll(() => {
     process.env.NODE_ENV = "test";
     process.env.ACCESS_TOKEN_EXPIRY = "900000";
@@ -10,10 +11,10 @@ beforeAll(() => {
     process.env.VERIFICATION_TOKEN_EXPIRY = "172800000";
     process.env.VERIFICATION_TOKEN_SECRET =
         "RedAuthVerificationTokenSecret97w3349583103";
-    process.env.MAIL_HOST = "smtp.gmail.com";
-    process.env.MAIL_PORT = "587";
-    process.env.MAIL_USER = "test@gmail.com";
-    process.env.MAIL_PASS = "testing";
-    process.env.FRONTEND_URL = "https://redauth.uzairmanan.com";
+    process.env.FRONTEND_URL = "http://localhost:3000";
+});
+beforeEach(async () => {
+    await prisma.token.deleteMany();
+    await prisma.user.deleteMany();
 });
 //# sourceMappingURL=setup.js.map
