@@ -4,7 +4,7 @@ import prisma from "../lib/prisma.js";
 import { tokenCleanupQueue } from "../queues/tokenCleanup.queue.js";
 import { logger } from "../lib/logger.js";
 
-const cleanupWorker = new Worker(
+export const cleanupWorker = new Worker(
   "tokenCleanupQueue",
   async () => {
     logger.debug("Token cleanup job started");

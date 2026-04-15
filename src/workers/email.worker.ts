@@ -5,7 +5,7 @@ import prisma from "../lib/prisma.js";
 import emailService from "../services/email.service.js";
 import { logger } from "../lib/logger.js";
 
-const emailWorker = new Worker<EmailData>(
+export const emailWorker = new Worker<EmailData>(
   "email-queue",
   async (job) => {
     const { to, subject, html } = job.data;
